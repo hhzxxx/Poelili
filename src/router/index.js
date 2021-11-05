@@ -1,24 +1,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
+import Proxy from '../views/Proxy.vue'
+import Main from '../views/Main.vue'
+import PoeSession from '../views/PoeSession.vue'
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/Proxy',
+    name: 'Proxy',
+    component: Proxy
+  },{
+    path: '/Main',
+    name: 'Main',
+    component: Main
+  },{
+    path: '/PoeSession',
+    name: 'PoeSession',
+    component: PoeSession
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes
 })
 
