@@ -10,7 +10,7 @@ import nodeTimer from "../utils/schedule";
 //   query,
 //   fetchItems
 // };
-export { axiosAll, getQueryByCode, query };
+export { axiosAll, getQueryByCode, query, initTxLeagues, initGJLeagues };
 
 
 let proxyList = []
@@ -20,26 +20,27 @@ if (store.has("proxyList")) {
   proxyList = store.get("proxyList")
 }
 
-function setProxy(options){
+
+function setProxy(options) {
   let proxy = null
-  let index = proxyCount%(proxyList.length+1)
-  if(index>=proxyList.length || proxyList.length==0){
+  let index = proxyCount % (proxyList.length + 1)
+  if (index >= proxyList.length || proxyList.length == 0) {
     proxy = null
-  }else{
-    if(proxyList[index].active){
+  } else {
+    if (proxyList[index].active) {
       proxy = proxyList[index]
     }
   }
-  if(proxy != null){
+  if (proxy != null) {
     if (proxy.username && proxy.password) {
       options.proxy = 'http://' + proxy.username + ':' + proxy.password + "@" + proxy.address.replace('http://', '')
     } else {
-      options.proxy =proxy.address
+      options.proxy = proxy.address
     }
   }
   proxyCount++
-  console.log("proxyCount :"+proxyCount)
-  console.log("proxy :"+options.proxy)
+  console.log("proxyCount :" + proxyCount)
+  console.log("proxy :" + options.proxy)
   return options;
 }
 
@@ -62,7 +63,7 @@ nodeTimer.scheduleTimer('20 * * * * *', function (err) {
       for (let i = 0; i < resArr.length; i++) {
         if (!pattern.test(resArr[i].data)) {
           proxyList[i].active = false
-        }else{
+        } else {
           proxyList[i].active = true
         }
       }
@@ -161,5 +162,56 @@ function fetchItems(data) {
     cookie: store.get("poeSession")[data.domain]
   }
   return axios
-    .post(`http://localhost:9091/poelili/spider`,setProxy(options))
+    .post(`http://localhost:9091/poelili/spider`, setProxy(options))
 }
+
+function initTxLeagues() {
+  const promise = new Promise(function (resolve, reject) {
+    if (store.has("poeSession") && store.get("poeSession")[1]) {
+      axios
+        .post(`http://localhost:9091/poelili/spider`, {
+          url: poeServe.domains[1] + "/trade/search",
+          cookie: store.get("poeSession")[1]
+        })
+        .then((response) => {
+          let pattern = /t\({.*?\);/;
+          let jsonStr = response.data.match(pattern)[0].replaceAll("t(", "").replaceAll(");", "");
+          store.set("leagues.1", JSON.parse(jsonStr).leagues)
+          resolve(JSON.parse(jsonStr).leagues)
+        })
+    } else {
+      reject("no sessionid")
+    }
+  })
+  return promise
+}
+
+
+function initGJLeagues() {
+  const promise = new Promise(function (resolve, reject) {
+    if (store.has("poeSession") && store.get("poeSession")[2]) {
+      axios
+        .post(`http://localhost:9091/poelili/spider`, {
+          url: poeServe.domains[2] + "/trade/search",
+          cookie: store.get("poeSession")[2]
+        })
+        .then((response) => {
+          let pattern = /t\({.*?\);/;
+          let jsonStr = response.data.match(pattern)[0].replaceAll("t(", "").replaceAll(");", "");
+          store.set("leagues.2", JSON.parse(jsonStr).leagues)
+          resolve(JSON.parse(jsonStr).leagues)
+        })
+    } else {
+      reject("no sessionid")
+    }
+  })
+  return promise
+}
+
+if (!store.has("leagues")) {
+  initTxLeagues()
+  initGJLeagues()
+}
+
+
+

@@ -34,4 +34,14 @@ if (!store.has("EcRate")) {
     })
 }
 
+if (store.has("itemList")) {
+    let itemList = store.get("itemList")
+    itemList.forEach(item => {
+        item.active = false
+        item.dialogFormVisible = false
+    });
+    store.set("itemList", itemList)
+}
+
+
 export default store // 暴露出去

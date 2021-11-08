@@ -32,7 +32,7 @@
   >
     <el-form-item size="mini" label="">
       <el-select
-        style="width: 90px"
+        style="width: 80px"
         fit-input-width="true"
         v-model="data.domain"
         placeholder="serve"
@@ -41,23 +41,33 @@
         <el-option label="国际" value="2"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="">
-      <el-input
-        input-style="min-width:40px;max-width:80px"
+    <!-- <el-form-item label="">
+      <el-select
+        style="width: 110px"
+        fit-input-width="true"
         v-model="data.league"
-        placeholder="league"
-      ></el-input>
-    </el-form-item>
-    <el-form-item label="">
+        placeholder="serve"
+      >
+        <el-option
+          v-for="(item, index1) in leagues[data.domain]"
+          :key="index1"
+          :label="item.id"
+          :value="item.id"
+        ></el-option>
+      </el-select>
+    </el-form-item> -->
+
+    <!-- <el-form-item label="">
       <el-input
         input-style="min-width:60px;max-width:100px"
         v-model="data.code"
         placeholder="code"
       ></el-input>
-    </el-form-item>
+    </el-form-item> -->
+
     <el-form-item label="">
       <el-input
-        input-style="min-width:70px;max-width:90px"
+        input-style="min-width:120px;max-width:150px"
         v-model="data.name"
         placeholder="reamrk"
       ></el-input>
@@ -72,12 +82,25 @@
         placeholder="监听价"
       ></el-input>
     </el-form-item>
+    <el-form-item label="">
+      <el-switch v-model="data.active" />
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="data.dialogFormVisible = true"
+        >edit</el-button
+      >
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="getByCode(index)">test</el-button>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="deleteItem(index)">delete</el-button>
     </el-form-item>
+    <edit
+      :data="data"
+      :leagues="leagues"
+      v-model="data.dialogFormVisible"
+    ></edit>
   </el-form>
   <el-row>
     <el-button type="primary" @click="addItem">Add</el-button>
@@ -85,13 +108,18 @@
 </template>
 
 <script>
+import { ElMessage } from "element-plus";
 const objects = require("../obj/objects");
 const spider = require("../utils/spider");
 const MathUtils = require("../utils/MathUtils");
 import store from "../store";
 import dateUtil from "../utils/DateUtil";
+import edit from "../components/edit.vue";
 
 export default {
+  components: {
+    edit,
+  },
   name: "HelloWorld",
   props: {
     msg: String,
@@ -109,6 +137,7 @@ export default {
           league: "S17赛季",
         },
       ],
+      leagues: {},
     };
   },
   watch: {
@@ -142,6 +171,20 @@ export default {
       this.formData = [new objects.ItemDate()];
       store.set("itemList", this.formData);
     }
+    if (
+      store.has("leagues") &&
+      store.get("leagues.1") &&
+      store.get("leagues.2")
+    ) {
+      this.leagues = store.get("leagues");
+    } else {
+      spider.initTxLeagues().then((res) => {
+        this.leagues[1] = res;
+      });
+      spider.initGJLeagues().then((res) => {
+        this.leagues[2] = res;
+      });
+    }
   },
   methods: {
     addItem() {
@@ -159,7 +202,7 @@ export default {
       let itemData = {
         code: type == 1 ? "2Xb7pjUk" : "NV6ofp", //
         domain: type,
-        league: type == 1 ? "S17赛季" : "Scourge",
+        league: this.leagues[type][0].text,
       };
       spider.getQueryByCode(itemData).then((query) => {
         spider.query({ query: query, data: itemData }).then((res) => {
@@ -187,6 +230,7 @@ export default {
               }
             });
             midNum = MathUtils.midNum(priceList);
+            ElMessage("获取成功");
             store.set("EcRate.date", dateUtil.formatDate(new Date()));
             if (type == 1) {
               this.EcRate.txValue = midNum;
@@ -246,6 +290,7 @@ export default {
             this.checkLimitState(res.data.limitState);
             this.getItemsByList(this.formData[index], res.data.fetchID[0]).then(
               (res) => {
+                ElMessage("获取成功");
                 this.formData[index].averagePrice = this.getAveragePrice(
                   res,
                   this.formData[index].domain

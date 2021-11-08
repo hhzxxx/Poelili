@@ -3,7 +3,7 @@ const { ElementPlusResolver } = require('unplugin-vue-components/resolvers')
 
 const path = require('path');
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
@@ -12,7 +12,7 @@ module.exports = {
   lintOnSave: false, // 取消 eslint
   devServer: {
     // can be overwritten by process.env.HOST
-    host: '0.0.0.0',  
+    host: '0.0.0.0',
     port: 9090
   },
   css: {
@@ -24,6 +24,12 @@ module.exports = {
       .set('src', resolve('src'))
       .set('common', resolve('src/common'))
       .set('components', resolve('src/components'));
+    // config.module
+    //   .rule('worker-loader')
+    //   .test(/\.worker\.js$/)
+    //   .use('worker-loader')
+    //   .loader('worker-loader')
+    //   .end();
   },
   pluginOptions: {
     electronBuilder: {

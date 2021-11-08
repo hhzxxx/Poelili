@@ -7,6 +7,7 @@ function ItemDate() {
     this.name = "";
     this.domain = "1";
     this.league = "";
-    this.listenPrice = 1;
+    this.listenPrice = "";
     this.averagePrice = 0;
+    this.dialogFormVisible = true;
 }
