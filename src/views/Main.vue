@@ -87,6 +87,7 @@
 <script>
 const objects = require("../obj/objects");
 const spider = require("../utils/spider");
+const MathUtils = require("../utils/MathUtils");
 import store from "../store";
 import dateUtil from "../utils/DateUtil";
 
@@ -156,7 +157,7 @@ export default {
     /**获取e价格 */
     getEcRate(type) {
       let itemData = {
-        code: type == 1 ? "2Xb7pjUk" : "2Xb7pjUk",
+        code: type == 1 ? "2Xb7pjUk" : "NV6ofp", //
         domain: type,
         league: type == 1 ? "S17赛季" : "Scourge",
       };
@@ -164,27 +165,34 @@ export default {
         spider.query({ query: query, data: itemData }).then((res) => {
           itemData.code = res.data.id;
           this.checkLimitState(res.data.limitState);
-          let fetchIDs = [];
-          this.getItemsByList(itemData, res.data.fetchID[0],res.data.fetchID[1],res.data.fetchID[2]).then((res) => {
-            let average = 0;
-            let size = 0;
-            let chaos = 0;
-
+          this.getItemsByList(
+            itemData,
+            res.data.fetchID[0],
+            res.data.fetchID[1],
+            res.data.fetchID[2]
+          ).then((res) => {
+            let midNum = 0;
+            let priceList = [];
             res.forEach((element) => {
               if (element.listing.price.currency == "chaos") {
-                size += element.item.stackSize;
-                chaos += element.listing.price.amount;
+                if (element.item.stackSize && element.listing.price.amount) {
+                  priceList.push(
+                    Math.round(
+                      type == 1
+                        ? element.listing.price.amount / element.item.stackSize
+                        : element.listing.price.amount
+                    )
+                  );
+                }
               }
             });
-            if (size > 0 && chaos > 0) {
-              average = Math.round(chaos / size);
-            }
+            midNum = MathUtils.midNum(priceList);
             store.set("EcRate.date", dateUtil.formatDate(new Date()));
             if (type == 1) {
-              this.EcRate.txValue = average;
+              this.EcRate.txValue = midNum;
               store.set("EcRate.txValue", this.EcRate.txValue);
             } else {
-              this.EcRate.gjValue = average;
+              this.EcRate.gjValue = midNum;
               store.set("EcRate.gjValue", this.EcRate.txValue);
             }
           });
@@ -199,17 +207,20 @@ export default {
       list.forEach((element) => {
         if (element.listing.price.currency == "chaos") {
           size += element.item.stackSize;
-          chaos += element.listing.price.amount;
+          chaos +=
+            element.listing.price.amount *
+            (domain == 1 ? 1 : element.item.stackSize);
         }
         if (element.listing.price.currency == "exalted") {
           size += element.item.stackSize;
           chaos +=
             element.listing.price.amount *
-            (domain == 1 ? this.EcRate.txValue : this.EcRate.gjValue);
+            (domain == 1 ? this.EcRate.txValue : this.EcRate.gjValue) *
+            (domain == 1 ? 1 : element.item.stackSize);
         }
       });
       if (size > 0 && chaos > 0) {
-        console.log("totalChaso:"+chaos+" size:"+size);
+        console.log("totalChaso:" + chaos + " size:" + size);
         return Math.round(chaos / size);
       } else {
         return 0;
@@ -258,12 +269,10 @@ export default {
             }
           });
           if (reqList.length > 0) {
-            spider
-              .axiosAll(reqList)
-              .then(
-                (res) => resolve(res),
-                (rej) => reject(rej)
-              );
+            spider.axiosAll(reqList).then(
+              (res) => resolve(res),
+              (rej) => reject(rej)
+            );
           }
         }
       });

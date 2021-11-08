@@ -14,28 +14,64 @@ export { axiosAll, getQueryByCode, query };
 
 
 let proxyList = []
+let proxyCount = 0;
+
+if (store.has("proxyList")) {
+  proxyList = store.get("proxyList")
+}
+
+function setProxy(options){
+  let proxy = null
+  let index = proxyCount%(proxyList.length+1)
+  if(index>=proxyList.length || proxyList.length==0){
+    proxy = null
+  }else{
+    if(proxyList[index].active){
+      proxy = proxyList[index]
+    }
+  }
+  if(proxy != null){
+    if (proxy.username && proxy.password) {
+      options.proxy = 'http://' + proxy.username + ':' + proxy.password + "@" + proxy.address.replace('http://', '')
+    } else {
+      options.proxy =proxy.address
+    }
+  }
+  proxyCount++
+  console.log("proxyCount :"+proxyCount)
+  console.log("proxy :"+options.proxy)
+  return options;
+}
 
 /**
  * 检查proxy15,30,45,59
- */ 
+ */
 nodeTimer.scheduleTimer('20 * * * * *', function (err) {
-  if(store.has("proxyList")){
+  if (store.has("proxyList")) {
     proxyList = store.get("proxyList")
     let posts = []
     proxyList.forEach(proxy => {
-      if(proxy.username && proxy.password){
-        posts.push(checkProxy('http://'+proxy.username+':'+proxy.password+"@"+proxy.address.replace('http://','')))
-      }else{
+      if (proxy.username && proxy.password) {
+        posts.push(checkProxy('http://' + proxy.username + ':' + proxy.password + "@" + proxy.address.replace('http://', '')))
+      } else {
         posts.push(checkProxy(proxy.address))
       }
     });
     axios.all(posts).then((resArr) => {
-      console.log('检查', resArr)
+      var pattern = /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/;
+      for (let i = 0; i < resArr.length; i++) {
+        if (!pattern.test(resArr[i].data)) {
+          proxyList[i].active = false
+        }else{
+          proxyList[i].active = true
+        }
+      }
+      store.set("proxyList", proxyList)
     })
   }
 })
 
-function checkProxy(address){
+function checkProxy(address) {
   return axios
     .post(`http://localhost:9091/poelili/checkProxy`, {
       proxy: address
@@ -92,15 +128,16 @@ function getQueryByCode(data) {
 
 function query(data) {
   const promise = new Promise(function (resolve, reject) {
+    let options = {
+      baseUrl: poeServe.domains[data.data.domain],
+      league: data.data.league,
+      url: "/api/trade/search/" + encodeURI(data.data.league),
+      cookie: store.get("poeSession")[data.data.domain],
+      searchJson: data.query,
+      // proxy: "http://127.0.0.1:10809"
+    }
     axios
-      .post(`http://localhost:9091/poelili/trade`, {
-        baseUrl: poeServe.domains[data.data.domain],
-        league: data.data.league,
-        url: "/api/trade/search/" + encodeURI(data.data.league),
-        cookie: store.get("poeSession")[data.data.domain],
-        searchJson: data.query,
-        // proxy: "http://127.0.0.1:10809"
-      })
+      .post(`http://localhost:9091/poelili/trade`, setProxy(options))
       .then((response) => {
         console.log(response)
 
@@ -119,10 +156,10 @@ function fetchItems(data) {
     ids += element + ","
   });
   ids = ids.substr(0, ids.length - 1);
-  console.log(ids);
+  let options = {
+    url: poeServe.domains[data.domain] + "/api/trade/fetch/" + ids + "?query=" + data.code,
+    cookie: store.get("poeSession")[data.domain]
+  }
   return axios
-    .post(`http://localhost:9091/poelili/spider`, {
-      url: poeServe.domains[data.domain] + "/api/trade/fetch/" + ids + "?query=" + data.code,
-      cookie: store.get("poeSession")[data.domain]
-    })
+    .post(`http://localhost:9091/poelili/spider`,setProxy(options))
 }
