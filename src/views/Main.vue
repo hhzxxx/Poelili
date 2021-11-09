@@ -187,6 +187,11 @@ export default {
 				this.leagues[2] = res
 			})
 		}
+
+		let Ec = setInterval(function () {
+			this.getEcRate(1)
+			this.getEcRate(2)
+		}, 1000 * 60 * 30)
 	},
 	methods: {
 		addItem() {
