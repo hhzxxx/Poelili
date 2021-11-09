@@ -1,4 +1,6 @@
 const async = require('async')
+
+
 /**
  *队列
  * @param obj ：obj对象 包含执行时间
@@ -12,7 +14,6 @@ const nodeQueue = async.queue(function (obj, callback) {
 		}
 	}, obj.time)
 }, 1)
-
 // worker数量将用完时，会调用saturated函数
 nodeQueue.saturated = function () {
 	console.log('all workers to be used')
@@ -27,4 +28,5 @@ nodeQueue.empty = function () {
 nodeQueue.drain = function () {
 	console.log('all tasks have been processed')
 }
+
 module.exports = nodeQueue

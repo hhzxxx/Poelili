@@ -24,12 +24,15 @@ module.exports = {
 			.set('src', resolve('src'))
 			.set('common', resolve('src/common'))
 			.set('components', resolve('src/components'))
-		// config.module
-		//   .rule('worker-loader')
-		//   .test(/\.worker\.js$/)
-		//   .use('worker-loader')
-		//   .loader('worker-loader')
-		//   .end();
+		config.module
+			.rule("worker")
+			.test(/\.worker\.js$/)
+			.use("worker-loader")
+			.loader("worker-loader")
+			.options({
+				inline: "fallback"
+			});
+		config.module.rule("js").exclude.add(/\.worker\.js$/);
 	},
 	pluginOptions: {
 		electronBuilder: {

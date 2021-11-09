@@ -51,44 +51,37 @@ function setProxy(options) {
 	return options
 }
 
-/**
- * 检查proxy15,30,45,59
- */
-nodeTimer.scheduleTimer('* 1 * * * *', function () {
+setTimeout(() => {
 	if (store.has('proxyList')) {
 		proxyList = store.get('proxyList')
-		let posts = []
+		var pattern =
+			/((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
 		proxyList.forEach((proxy) => {
+			let address = proxy.address
 			if (proxy.username && proxy.password) {
-				posts.push(
-					checkProxy(
-						'http://' +
-							proxy.username +
-							':' +
-							proxy.password +
-							'@' +
-							proxy.address.replace('http://', '')
-					)
-				)
-			} else {
-				posts.push(checkProxy(proxy.address))
+				address = 'http://' +
+					proxy.username +
+					':' +
+					proxy.password +
+					'@' +
+					proxy.address.replace('http://', '')
 			}
-		})
-		axios.all(posts).then((resArr) => {
-			console.log(resArr)
-			var pattern =
-				/((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
-			for (let i = 0; i < resArr.length; i++) {
-				if (!pattern.test(resArr[i].data)) {
-					proxyList[i].active = false
-				} else {
-					proxyList[i].active = true
-				}
-			}
-			store.set('proxyList', proxyList)
+			checkProxy(address).then((res) => {
+				// if (!pattern.test(res.data)) {
+					// proxy.active = false
+				// } else {
+					proxy.active = true
+				// }
+				store.set('proxyList', proxyList)
+
+			}, (rej) => {
+				proxy.active = false
+				store.set('proxyList', proxyList)
+			})
 		})
 	}
-})
+}, 2000);
+
 
 function checkProxy(address) {
 	return axios.post(`http://localhost:9091/poelili/checkProxy`, {
@@ -111,6 +104,8 @@ function axiosAll(data) {
 			})
 			console.log('请求结果', resList)
 			resolve(resList)
+		}, (rej) => {
+			reject(rej)
 		})
 	})
 	return promise
@@ -143,6 +138,8 @@ function getQueryByCode(data) {
 				}
 				console.log(query)
 				resolve(query)
+			}, (rej) => {
+				reject(rej)
 			})
 			.catch(function (error) {
 				reject(`请求✿✿✿✿✿✿失败`)
@@ -169,7 +166,7 @@ function query(data) {
 				resolve(response)
 			})
 			.catch(function (error) {
-				console.log(error)
+				reject(error)
 			})
 	})
 	return promise

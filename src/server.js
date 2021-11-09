@@ -59,7 +59,11 @@
 			options.proxy = `${req.body.proxy}`
 		}
 		request(options, function (error, response, body) {
-			res.send(body)
+			if (!error && response.statusCode == 200) {
+				res.send(body)
+			} else {
+				res.send(error)
+			}
 		})
 	})
 
@@ -83,8 +87,7 @@
 			if (!error && response.statusCode == 200) {
 				res.send(body)
 			} else {
-				res.status(response.statusCode).send(body)
-				console.log(response.statusCode, body)
+				res.send(error)
 			}
 		})
 	})
@@ -165,8 +168,7 @@
 					limitState: limitState,
 				})
 			} else {
-				res.status(response.statusCode).send(body)
-				console.log(response.statusCode, body)
+				res.send(error)
 			}
 		})
 	})

@@ -9,6 +9,8 @@ if (!store.has("poeSession")) {
         2: "",
     })
 }
+store.set("workingList", {
+})
 
 if (!store.has("proxyList")) {
     store.set("proxyList", [
