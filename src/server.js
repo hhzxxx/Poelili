@@ -25,7 +25,6 @@
 		else next()
 	})
 
-	// 使用 bodyparser.json() 將 HTTP 請求方法 POST、DELETE、PUT 和 PATCH，放在 HTTP 主體 (body) 發送的參數存放在 req.body
 	app.use(
 		bodyParser.urlencoded({
 			extended: false,
@@ -92,7 +91,6 @@
 		})
 	})
 
-	// post searchJson to garena POE trade API
 	app.post('/poelili/trade', function (req, res) {
 		console.log(
 			moment().format('HH:mm:ss'),
@@ -102,7 +100,7 @@
 		console.log(req.body.searchJson.query)
 		let league = encodeURI(req.body.league)
 		let baseUrl = req.body.baseUrl
-		let fetchID = [] // 儲存得到的 result ID, 10 個 ID 為一組陣列
+		let fetchID = [] 
 		let options = {
 			url: `${baseUrl}/api/trade/search/${league}`,
 			// could replace searchJson by `${league}?q={"query": ... }`

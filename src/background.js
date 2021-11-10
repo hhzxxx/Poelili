@@ -8,7 +8,7 @@ import store from './store'
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-	{ scheme: 'app', privileges: { secure: true, standard: true } },
+	{ scheme: 'app', privileges: { secure: true, standard: true, corsEnabled: true } },
 ])
 
 async function createWindow() {
@@ -24,7 +24,7 @@ async function createWindow() {
 			nodeIntegrationInWorker: true,
 		},
 	})
-
+	win.removeMenu()
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
 		await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)

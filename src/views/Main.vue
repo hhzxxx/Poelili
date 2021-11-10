@@ -157,6 +157,7 @@ export default {
 		},
 	},
 	created() {
+		var that = this
 		if (!store.has('EcRate')) {
 			this.EcRate = {
 				date: dateUtil.formatDate(new Date()),
@@ -189,8 +190,8 @@ export default {
 		}
 
 		let Ec = setInterval(function () {
-			this.getEcRate(1)
-			this.getEcRate(2)
+			that.getEcRate(1)
+			that.getEcRate(2)
 		}, 1000 * 60 * 30)
 	},
 	methods: {
@@ -226,14 +227,14 @@ export default {
 						res.forEach((element) => {
 							if (element.listing.price.currency == 'chaos') {
 								if (
-									element.item.stackSize &&
+									(element.item.stackSize?element.item.stackSize:1) &&
 									element.listing.price.amount
 								) {
 									priceList.push(
 										Math.round(
 											type == 1
 												? element.listing.price.amount /
-														element.item.stackSize
+														(element.item.stackSize?element.item.stackSize:1)
 												: element.listing.price.amount
 										)
 									)
@@ -264,19 +265,19 @@ export default {
 
 			list.forEach((element) => {
 				if (element.listing.price.currency == 'chaos') {
-					size += element.item.stackSize
+					size += (element.item.stackSize?element.item.stackSize:1)
 					chaos +=
 						element.listing.price.amount *
-						(domain == 1 ? 1 : element.item.stackSize)
+						(domain == 1 ? 1 : (element.item.stackSize?element.item.stackSize:1))
 				}
 				if (element.listing.price.currency == 'exalted') {
-					size += element.item.stackSize
+					size += (element.item.stackSize?element.item.stackSize:1)
 					chaos +=
 						element.listing.price.amount *
 						(domain == 1
 							? this.EcRate.txValue
 							: this.EcRate.gjValue) *
-						(domain == 1 ? 1 : element.item.stackSize)
+						(domain == 1 ? 1 : (element.item.stackSize?element.item.stackSize:1))
 				}
 			})
 			if (size > 0 && chaos > 0) {
