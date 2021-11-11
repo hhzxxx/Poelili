@@ -1,8 +1,14 @@
 <template>
+  <el-button
+    style="float: right"
+    type="danger"
+    @click="reload"
+    :icon="Refresh"
+    circle
+  ></el-button>
   <div>Poelili</div>
   <el-switch v-model="notice" active-text="开启通知" inactive-text="关闭通知">
   </el-switch>
-
   <div id="nav">
     <router-link to="/PoeSession"> PoeSession</router-link> |
     <router-link to="/Main"> Main</router-link> |
@@ -77,8 +83,9 @@
 <script>
 import store from "./store";
 const listenAction = require("./utils/listenAction");
-import { Delete, List } from "@element-plus/icons";
+import { Delete, List, Refresh } from "@element-plus/icons";
 import ItemShow from "./components/itemShow.vue";
+import { ElMessage } from 'element-plus'
 
 export default {
   name: "App",
@@ -91,27 +98,20 @@ export default {
       notice: false,
       itemShowData: {},
       itemShow: false,
+      date: new Date(),
       Delete,
       List,
+      Refresh,
     };
   },
-  computed: {
-  },
-  watch:{
-		newList: {
-			handler(newData, oldData) {
-				if(newData.length>50){
-					newData.splice(49)
-					this.newList = newData
-				}
-			},
-			deep: true,
-		},
-  },
+  mounted() {},
+  computed: {},
+  watch: {},
   methods: {
     copy(text) {
       this.$copyText(text).then(
         (e) => {
+          ElMessage("复制成功");
           console.log("复制成功");
         },
         (e) => {
@@ -130,11 +130,22 @@ export default {
       let index = this.newList.findIndex((item) => item.id === id);
       this.newList.splice(index, 1);
     },
+    reload() {
+      location.reload();
+    },
   },
   created() {
+    // let audio = new Audio()
+    // audio.src = "./voip_ring.mp3"
+    // audio.play();
+
+    ElMessage("POELili Ready");
     let that = this;
+    if (this.timer) {
+      clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
+    }
     this.itemList = store.get("itemList");
-    let int = setInterval(function () {
+    this.timer = setInterval(function () {
       if (store.has("itemList")) {
         that.itemList = store.get("itemList");
         try {
@@ -144,12 +155,12 @@ export default {
               store.set("workingList." + item.code, true);
               listenAction.getFetch(item).then(
                 (res) => {
-                  let newlist = res.concat(that.newList);
-                  // newlist.sort(function (a, b) {
-                  // 	return a.avgPrice - b.avgPrice
-                  // })
-                  that.newList = newlist;
-                  if (res) {
+                  if (res && res.length) {
+                    let newlist = res.concat(that.newList);
+                    // newlist.sort(function (a, b) {
+                    // 	return a.avgPrice - b.avgPrice
+                    // })
+                    that.newList = newlist;
                     if (
                       window.Notification &&
                       Notification.permission !== "denied" &&
@@ -177,6 +188,11 @@ export default {
       }
     }, 15000);
   },
+  beforeUnmount() {
+    if (this.timer) {
+      clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
+    }
+  },
 };
 </script>
 
@@ -187,7 +203,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 10px;
 }
 .infinite-list {
   height: 300px;

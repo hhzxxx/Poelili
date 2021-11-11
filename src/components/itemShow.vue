@@ -70,6 +70,12 @@
               <div v-if="sdata.item.note">
                 {{ sdata.item.note }}
               </div>
+              <el-button
+                v-if="sdata.fetchItem.domain == 1"
+                type="text"
+                @click="copyText"
+                >市集搜索语句</el-button
+              >
             </el-footer>
           </el-container>
         </div>
@@ -80,6 +86,7 @@
 
 <script>
 const itemUtil = require("../utils/itemShow");
+import { ElMessage } from "element-plus";
 
 export default {
   components: {},
@@ -130,6 +137,52 @@ export default {
   },
   computed: {},
   methods: {
+    copyText() {
+      let text = "";
+      if (this.sdata.item.note) {
+        text += '"' + this.sdata.item.note + '" ';
+      }
+      if (this.sdata.item.name) {
+        text += '"' + this.sdata.item.name + '" ';
+      }
+
+      if (this.sdata.item.ilvl) {
+        text += '"ilvl: ' + this.sdata.item.ilvl + '" ';
+      }
+      let flag = false;
+      if (this.sdata.item.extended) {
+        if (this.sdata.item.extended.mods) {
+          if (this.sdata.item.extended.mods.explicit) {
+            this.sdata.item.extended.mods.explicit.forEach((element) => {
+              if (element.name) {
+                flag = true;
+                text += '"' + element.name + '" ';
+              }
+            });
+          }
+        }
+      }
+
+      if (this.sdata.item.notableProperties) {
+        this.sdata.item.notableProperties.forEach((element) => {
+          flag = true;
+          text += '"' + element.name + '" ';
+        });
+      }
+
+      if (!flag && this.sdata.item.explicitMods) {
+        this.sdata.item.explicitMods.forEach((element) => {
+          text += '"' + element + '" ';
+        });
+      }
+
+      this.$copyText(text).then(
+        (e) => {
+          ElMessage("复制成功");
+        },
+        (e) => {}
+      );
+    },
     genSockets() {
       let group = [];
       let socketsList = this.sdata.item.sockets;
