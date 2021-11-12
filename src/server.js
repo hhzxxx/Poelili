@@ -3,7 +3,7 @@
   let express = require("express");
   let app = express();
   const request = require("request");
-  
+
   const moment = require("moment");
   const bodyParser = require("body-parser");
   const events = require("events");
@@ -19,7 +19,6 @@
 
   // 触发 error事件
   emitter.emit("error", new Error("你代码出错了"));
-
 
   //设置跨域访问
   app.all("*", function (req, res, next) {
@@ -65,10 +64,8 @@
     };
     request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-		
         res.send(body);
       } else {
-		
         res.send(error);
       }
     });
@@ -119,7 +116,7 @@
       if (!error && response.statusCode == 200) {
         res.send(body);
       } else {
-		console.log(error)
+        console.log(error);
         res.send(error);
       }
     });
@@ -190,7 +187,7 @@
           limitState: limitState,
         });
       } else {
-		  console.log(error)
+        console.log(error);
         res.send(error);
       }
     });
