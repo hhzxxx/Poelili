@@ -39,29 +39,6 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
   }
-  localShortcut.register("F5", () => {
-    console.log("F5 is pressed, setAlwaysOnTop(true)");
-    win.setOpacity(win.getOpacity() === 1 ? 0.4 : win.getOpacity());
-	win.setIgnoreMouseEvents(true)
-    win.setAlwaysOnTop(true);
-  });
-  localShortcut.register("F6", () => {
-    console.log("F6 is pressed, setAlwaysOnTop(false), setOpacity(1)");
-    win.setOpacity(1);
-	win.setIgnoreMouseEvents(false)
-    win.setAlwaysOnTop(false);
-  });
-  localShortcut.register("PageUp", () => {
-    console.log("PageUp is pressed, setOpacity(+ 0.05)");
-    win.setOpacity(win.getOpacity() + 0.05);
-  });
-  localShortcut.register("PageDown", () => {
-    if (win.getOpacity() <= 0.4) {
-      return;
-    }
-    console.log("PageDown is pressed, setOpacity(- 0.05)");
-    win.setOpacity(win.getOpacity() - 0.05);
-  });
 }
 
 // Quit when all windows are closed.

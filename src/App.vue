@@ -1,11 +1,12 @@
 <template>
-  <!-- <el-button
-    style="float: right"
-    type="info"
-    @click="reload"
-    :icon="Refresh"
+  <div style="float: left; margin-left: 10px">timer:{{ timerTime }}</div>
+  <el-button
+    type="danger"
+    style="float: right; margin-left: 10px"
+    @click="clean"
+    :icon="Delete"
     circle
-  ></el-button> -->
+  ></el-button>
 
   <div>Poelili</div>
   <el-switch v-model="notice" active-text="开启通知" inactive-text="关闭通知">
@@ -16,11 +17,7 @@
     <router-link to="/Proxy"> proxy</router-link>
   </div>
   <router-view></router-view>
-  <el-tabs
-    style="display: flex; flex-direction: row; justify-content: space-between"
-    v-model="activeName"
-    @tab-click="handleClick"
-  >
+  <el-tabs v-model="activeName" @tab-click="handleClick">
     <el-tab-pane label="全部" name="all"></el-tab-pane>
     <el-tab-pane
       v-for="fetchItem in itemList"
@@ -29,13 +26,6 @@
       :name="fetchItem.code"
     >
     </el-tab-pane>
-    <el-button
-      type="danger"
-      style="float: right; margin-left: 10px"
-      @click="clean"
-      :icon="Delete"
-      circle
-    ></el-button>
   </el-tabs>
   <ul class="infinite-list" style="overflow: auto">
     <li
@@ -114,6 +104,7 @@ export default {
       itemShow: false,
       date: new Date(),
       play: true,
+      timerTime: 10,
       Delete,
       List,
       Refresh,
@@ -164,6 +155,9 @@ export default {
     if (this.timer) {
       clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
     }
+    if (store.has("timerTime")) {
+      this.timerTime = store.get("timerTime");
+    }
     this.itemList = store.get("itemList");
     this.timer = setInterval(function () {
       if (store.has("itemList")) {
@@ -205,7 +199,7 @@ export default {
           console.log(e);
         }
       }
-    }, 10000);
+    }, that.timerTime * 1000);
   },
   beforeUnmount() {
     if (this.timer) {
