@@ -69,6 +69,7 @@
 			<el-input
 				input-style="min-width:120px;max-width:150px"
 				v-model="data.name"
+				@click="clickName(data.name)"
 				placeholder="reamrk"
 			></el-input>
 		</el-form-item>
@@ -195,6 +196,14 @@ export default {
 		}, 1000 * 60 * 30)
 	},
 	methods: {
+		clickName(name) {
+			this.$copyText(name).then(
+				(e) => {
+					ElMessage('复制成功')
+				},
+				(e) => {}
+			)
+		},
 		addItem() {
 			this.formData.push(new objects.ItemDate())
 		},
@@ -227,14 +236,19 @@ export default {
 						res.forEach((element) => {
 							if (element.listing.price.currency == 'chaos') {
 								if (
-									(element.item.stackSize?element.item.stackSize:1) &&
+									(element.item.stackSize
+										? element.item.stackSize
+										: 1) &&
 									element.listing.price.amount
 								) {
 									priceList.push(
 										Math.round(
 											type == 1
 												? element.listing.price.amount /
-														(element.item.stackSize?element.item.stackSize:1)
+														(element.item.stackSize
+															? element.item
+																	.stackSize
+															: 1)
 												: element.listing.price.amount
 										)
 									)
@@ -265,19 +279,27 @@ export default {
 
 			list.forEach((element) => {
 				if (element.listing.price.currency == 'chaos') {
-					size += (element.item.stackSize?element.item.stackSize:1)
+					size += element.item.stackSize ? element.item.stackSize : 1
 					chaos +=
 						element.listing.price.amount *
-						(domain == 1 ? 1 : (element.item.stackSize?element.item.stackSize:1))
+						(domain == 1
+							? 1
+							: element.item.stackSize
+							? element.item.stackSize
+							: 1)
 				}
 				if (element.listing.price.currency == 'exalted') {
-					size += (element.item.stackSize?element.item.stackSize:1)
+					size += element.item.stackSize ? element.item.stackSize : 1
 					chaos +=
 						element.listing.price.amount *
 						(domain == 1
 							? this.EcRate.txValue
 							: this.EcRate.gjValue) *
-						(domain == 1 ? 1 : (element.item.stackSize?element.item.stackSize:1))
+						(domain == 1
+							? 1
+							: element.item.stackSize
+							? element.item.stackSize
+							: 1)
 				}
 			})
 			if (size > 0 && chaos > 0) {

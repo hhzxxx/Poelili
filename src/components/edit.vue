@@ -1,7 +1,7 @@
 <template>
 	<el-dialog v-model="sdata.dialogFormVisible" title="Shipping address">
 		<el-form ref="form" :model="sdata">
-			<el-form-item size="mini" label="">
+			<el-form-item size="mini" label="Serve">
 				<el-select
 					fit-input-width="true"
 					v-model="sdata.domain"
@@ -11,7 +11,7 @@
 					<el-option label="国际" value="2"></el-option>
 				</el-select>
 			</el-form-item>
-			<el-form-item size="mini" label="">
+			<el-form-item size="mini" label="League">
 				<el-select
 					fit-input-width="true"
 					v-model="sdata.league"
@@ -25,26 +25,70 @@
 					></el-option>
 				</el-select>
 			</el-form-item>
-			<el-form-item label="">
+			<el-form-item label="Code">
 				<el-input v-model="sdata.code" placeholder="code"></el-input>
 			</el-form-item>
-			<el-form-item label="">
+			<el-form-item label="备注">
 				<el-input v-model="sdata.name" placeholder="reamrk"></el-input>
+			</el-form-item>
+			<el-form-item label="排序">
+				<el-select
+					@change="changeSort"
+					fit-input-width="true"
+					v-model="sort"
+					placeholder="sort"
+				>
+					<el-option
+						label="最近"
+						value='{"indexed":"desc"}'
+					></el-option>
+					<el-option label="低价" value='{"price":"asc"}'></el-option>
+					<el-option
+						label="高价"
+						value='{"price":"desc"}'
+					></el-option>
+				</el-select>
 			</el-form-item>
 		</el-form>
 	</el-dialog>
 </template>
 
 <script>
+import store from '../store'
 export default {
 	name: 'HelloWorld',
 	props: {
 		data: Object,
 		leagues: Object,
 	},
+	methods: {
+		changeSort(val) {
+			if (store.has('queryList.' + this.sdata.code)) {
+				store.set(
+					'queryList.' + this.sdata.code + '.sort',
+					JSON.parse(val)
+				)
+			}
+			console.log(val)
+		},
+	},
+	watch: {
+		sdata: {
+			handler(newData, oldData) {
+				if (store.has('queryList.' + newData.code)) {
+					let query = store.get('queryList.' + newData.code)
+					if (query.sort) {
+						this.sort = JSON.stringify(query.sort)
+					}
+				}
+			},
+			deep: true,
+		},
+	},
 	data() {
 		return {
 			sdata: this.data,
+			sort: '',
 		}
 	},
 	created() {},
