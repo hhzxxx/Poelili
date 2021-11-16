@@ -4,6 +4,17 @@ export const domains = {
 }
 
 export const wsdomains = {
-	1: 'wss://poe.game.qq.com',
-	2: 'wss://www.pathofexile.com',
+	1: 'poe.game.qq.com',
+	2: 'www.pathofexile.com',
 }
+
+export const wsnginx = {
+	1: '49.234.3.138',
+	2: '49.235.120.9:7878',
+}
+
+export const wsnginxapi = {
+	1: 'poetxsocket',
+	2: 'poegjsocket',
+}
+

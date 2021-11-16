@@ -24,7 +24,7 @@
         <div class="grid-content bg-purple-light">
           <el-container>
             <el-header height="auto">
-              <div v-if="sdata.item.name">
+              <div v-if="sdata.item.name" @click="copyThis(sdata.item.name+influences)">
                 {{ sdata.item.name }}({{ frameType }}){{
                   sdata.item.corrupted
                     ? (sdata.item.scourgeMods ? "(天灾" : "(") + "腐化)"
@@ -41,6 +41,7 @@
               <div v-if="sdata.item.scourgeMods">
                 <div
                   v-for="scourgeMods in sdata.item.scourgeMods"
+                  @click="copyThis(scourgeMods)"
                   :key="scourgeMods"
                 >
                   {{ scourgeMods }}
@@ -51,6 +52,7 @@
                 <div
                   v-for="implicitMod in sdata.item.implicitMods"
                   :key="implicitMod"
+                  @click="copyThis(implicitMod)"
                 >
                   {{ implicitMod }}
                 </div>
@@ -61,13 +63,14 @@
                 <div
                   v-for="explicitmods in sdata.item.explicitMods"
                   :key="explicitmods"
+                  @click="copyThis(explicitmods)"
                 >
                   {{ explicitmods }}
                 </div>
               </div>
             </el-main>
             <el-footer>
-              <div v-if="sdata.item.note">
+              <div v-if="sdata.item.note" @click="copyThis(sdata.item.note)">
                 {{ sdata.item.note }}
               </div>
               <el-button
@@ -139,43 +142,56 @@ export default {
   methods: {
     copyText() {
       let text = "";
-      if (this.sdata.item.note) {
-        text += '"' + this.sdata.item.note + '" ';
+      if (this.sdata.listing.price) {
+        if (this.sdata.listing.price.currency == "chaos") {
+          text += '"o ' + this.sdata.listing.price.amount + ' c"';
+        }
+        if (this.sdata.listing.price.currency == "exalted") {
+          text += '"o ' + this.sdata.listing.price.amount + ' e"';
+        }
       }
       if (this.sdata.item.name) {
-        text += '"' + this.sdata.item.name + '" ';
+        text += '"' + this.sdata.item.name + '"';
       }
 
       if (this.sdata.item.ilvl) {
-        text += '"ilvl: ' + this.sdata.item.ilvl + '" ';
+        text += '"物.*: ' + this.sdata.item.ilvl + '"';
       }
-      let flag = false;
-      if (this.sdata.item.extended) {
-        if (this.sdata.item.extended.mods) {
-          if (this.sdata.item.extended.mods.explicit) {
-            this.sdata.item.extended.mods.explicit.forEach((element) => {
-              if (element.name) {
-                flag = true;
-                text += '"' + element.name + '" ';
-              }
-            });
-          }
-        }
-      }
+      // let flag = false;
+      // if (this.sdata.item.extended) {
+      //   if (this.sdata.item.extended.mods) {
+      //     if (this.sdata.item.extended.mods.explicit) {
+      //       this.sdata.item.extended.mods.explicit.forEach((element) => {
+      //         if (element.name) {
+      //           flag = true;
+      //           text += '"' + element.name + '" ';
+      //         }
+      //       });
+      //     }
+      //   }
+      // }
 
-      if (this.sdata.item.notableProperties) {
-        this.sdata.item.notableProperties.forEach((element) => {
-          flag = true;
-          text += '"' + element.name + '" ';
-        });
-      }
+      // if (this.sdata.item.notableProperties) {
+      //   this.sdata.item.notableProperties.forEach((element) => {
+      //     flag = true;
+      //     text += '"' + element.name + '" ';
+      //   });
+      // }
 
-      if (!flag && this.sdata.item.explicitMods) {
-        this.sdata.item.explicitMods.forEach((element) => {
-          text += '"' + element + '" ';
-        });
-      }
+      // if (!flag && this.sdata.item.explicitMods) {
+      //   this.sdata.item.explicitMods.forEach((element) => {
+      //     text += '"' + element + '" ';
+      //   });
+      // }
 
+      this.$copyText(text).then(
+        (e) => {
+          ElMessage("复制成功");
+        },
+        (e) => {}
+      );
+    },
+    copyThis(text) {
       this.$copyText(text).then(
         (e) => {
           ElMessage("复制成功");
