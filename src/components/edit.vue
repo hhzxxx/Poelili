@@ -154,7 +154,10 @@ export default {
         this.sdata = newData
         this.codeDis = false
         this.add = false
-        if (newData.minPrice || newData.maxPrice) {
+        if (
+          (newData.minPrice || newData.maxPrice) &&
+          store.has('queryList.' + newData.code)
+        ) {
           let price = {
             min: newData.minPrice ? parseInt(newData.minPrice) : null,
             max: newData.maxPrice ? parseInt(newData.maxPrice) : null,
