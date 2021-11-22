@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="sdata.dialogFormVisible" title="Shipping address">
+  <el-dialog v-model="sdata.dialogFormVisible" title="新增">
     <el-form ref="form" :model="sdata">
       <el-form-item size="mini" label="Serve">
         <el-select
@@ -35,28 +35,28 @@
       <el-form-item label="备注">
         <el-input v-model="sdata.name" placeholder="reamrk"></el-input>
       </el-form-item>
-      <el-form-item label="ws读取数">
+      <el-form-item v-if="!add" label="ws读取数">
         <el-input
           :disabled="add"
           v-model="sdata.wsLength"
           placeholder="wsLength"
         ></el-input>
       </el-form-item>
-      <el-form-item label="最低价">
+      <el-form-item v-if="!add" label="最低价">
         <el-input
           :disabled="add"
           v-model="sdata.minPrice"
           placeholder="minPrice"
         ></el-input>
       </el-form-item>
-      <el-form-item label="最高价">
+      <el-form-item v-if="!add" label="最高价">
         <el-input
           :disabled="add"
           v-model="sdata.maxPrice"
           placeholder="maxPrice"
         ></el-input>
       </el-form-item>
-      <el-form-item label="排序">
+      <el-form-item v-if="!add" label="排序">
         <el-select
           :disabled="add"
           @change="changeSort"
@@ -70,11 +70,21 @@
         </el-select>
       </el-form-item>
     </el-form>
+    <template #title>
+      <span class="dialog-footer">
+        <h3>新增</h3>
+        <el-button style="float: right" type="primary" @click="newWindow"
+          >网页</el-button
+        >
+      </span>
+    </template>
   </el-dialog>
 </template>
 
 <script>
 import store from "../store";
+import { viewCreate, windowCreate } from "../utils/plugins";
+
 export default {
   name: "HelloWorld",
   props: {
@@ -115,6 +125,14 @@ export default {
       } else {
         this.add = true;
       }
+    },
+    newWindow() {
+      let that = this
+      viewCreate({
+        url:"https://poe.game.qq.com/trade/search/S17%E8%B5%9B%E5%AD%A3",
+        winId:1,
+        POESESSID:store.get("poeSession")[that.sdata.domain]
+      })
     },
   },
   watch: {

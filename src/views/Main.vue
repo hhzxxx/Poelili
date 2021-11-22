@@ -8,13 +8,13 @@
     <el-form-item style="margin-right: 60px" label="获取时间">
       <div>{{ EcRate.date }}</div>
     </el-form-item>
-    <el-form-item label="腾讯服EC比">
+    <el-form-item v-loading="txValueLoading" label="腾讯服EC比">
       <div>{{ EcRate.txValue }}</div>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="getEcRate(1)">刷新</el-button>
     </el-form-item>
-    <el-form-item label="国际服EC比">
+    <el-form-item v-loading="gjValueLoading" label="国际服EC比">
       <div>{{ EcRate.gjValue }}</div>
     </el-form-item>
     <el-form-item>
@@ -61,7 +61,11 @@
       ></el-input>
     </el-form-item>
     <el-form-item label="">
-      <el-input input-style="min-width:20px;max-width:40px" v-model="data.wsLength" placeholder="wsLength"></el-input>
+      <el-input
+        input-style="min-width:20px;max-width:40px"
+        v-model="data.wsLength"
+        placeholder="wsLength"
+      ></el-input>
     </el-form-item>
     <el-form-item label="">
       <el-switch v-model="data.active" />
@@ -119,6 +123,8 @@ export default {
         },
       ],
       leagues: {},
+      txValueLoading: false,
+      gjValueLoading: false,
     };
   },
   watch: {
@@ -199,6 +205,7 @@ export default {
         domain: type,
         league: this.leagues[type][0].text,
       };
+      type == 1 ? (this.txValueLoading = true) : (this.gjValueLoading = true);
       spider.getQueryByCode(itemData).then((query) => {
         spider.query({ query: query, data: itemData }).then((res) => {
           itemData.code = res.data.id;
@@ -208,39 +215,50 @@ export default {
             res.data.fetchID[0],
             res.data.fetchID[1],
             res.data.fetchID[2]
-          ).then((res) => {
-            let midNum = 0;
-            let priceList = [];
-            res.forEach((element) => {
-              if (element.listing.price.currency == "chaos") {
-                if (
-                  (element.item.stackSize ? element.item.stackSize : 1) &&
-                  element.listing.price.amount
-                ) {
-                  priceList.push(
-                    Math.round(
-                      type == 1
-                        ? element.listing.price.amount /
-                            (element.item.stackSize
-                              ? element.item.stackSize
-                              : 1)
-                        : element.listing.price.amount
-                    )
-                  );
+          ).then(
+            (res) => {
+              let midNum = 0;
+              let priceList = [];
+              res.forEach((element) => {
+                if (element.listing.price.currency == "chaos") {
+                  if (
+                    (element.item.stackSize ? element.item.stackSize : 1) &&
+                    element.listing.price.amount
+                  ) {
+                    priceList.push(
+                      Math.round(
+                        type == 1
+                          ? element.listing.price.amount /
+                              (element.item.stackSize
+                                ? element.item.stackSize
+                                : 1)
+                          : element.listing.price.amount
+                      )
+                    );
+                  }
                 }
+              });
+              midNum = MathUtils.midNum(priceList);
+              ElMessage("获取成功");
+              type == 1
+                ? (this.txValueLoading = false)
+                : (this.gjValueLoading = false);
+              store.set("EcRate.date", dateUtil.formatDate(new Date()));
+              if (type == 1) {
+                this.EcRate.txValue = midNum;
+                store.set("EcRate.txValue", this.EcRate.txValue);
+              } else {
+                this.EcRate.gjValue = midNum;
+                store.set("EcRate.gjValue", this.EcRate.gjValue);
               }
-            });
-            midNum = MathUtils.midNum(priceList);
-            ElMessage("获取成功");
-            store.set("EcRate.date", dateUtil.formatDate(new Date()));
-            if (type == 1) {
-              this.EcRate.txValue = midNum;
-              store.set("EcRate.txValue", this.EcRate.txValue);
-            } else {
-              this.EcRate.gjValue = midNum;
-              store.set("EcRate.gjValue", this.EcRate.txValue);
+            },
+            (rej) => {
+              ElMessage("获取失败");
+              type == 1
+                ? (this.txValueLoading = false)
+                : (this.gjValueLoading = false);
             }
-          });
+          );
         });
       });
     },
