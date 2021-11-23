@@ -182,10 +182,10 @@ export default {
       })
     }
 
-    let Ec = setInterval(function () {
-      that.getEcRate(1)
-      that.getEcRate(2)
-    }, 1000 * 60 * 30)
+    // let Ec = setInterval(function () {
+    //   that.getEcRate(1)
+    //   that.getEcRate(2)
+    // }, 1000 * 60 * 30)
   },
   methods: {
     clickName(name) {

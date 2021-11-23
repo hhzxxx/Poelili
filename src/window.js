@@ -193,7 +193,7 @@ export class Window {
 			viewWin.removeMenu()
 			if (options.POESESSID) {
 				session.defaultSession.cookies.set({
-					url: 'https://poe.game.qq.com',
+					url: options.domain,
 					name: 'POESESSID',
 					value: options.POESESSID,
 				})
