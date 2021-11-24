@@ -248,12 +248,16 @@ export default {
 
       socket.onclose = function (e) {
         that.wsClient[item.code] = null;
+        delete that.wsClient[item.code]
         that.wsReady[item.code] = null;
+        delete that.wsReady[item.code]
         ElMessage(fetchItem.name + ",连接关闭");
       };
       socket.onerror = function (e) {
         that.wsClient[item.code] = null;
+        delete that.wsClient[item.code]
         that.wsReady[item.code] = null;
+        delete that.wsReady[item.code]
         ElMessage(fetchItem.name + ",连接异常");
       };
 
@@ -363,11 +367,24 @@ export default {
               that.wsClient[item.code].close();
             }
           });
+          for(let wsCode in that.wsClient){
+            console.log("now ws:"+wsCode)
+            let flag = true
+            that.itemList.forEach((item, index) => {
+              if(item.code == wsCode){
+                flag = false
+              }
+            })
+            if(flag && that.wsClient[wsCode]){
+              that.wsClient[wsCode].close();
+            }
+          }
         }
       }
     }, 1000);
   },
   beforeUnmount() {
+    console.log(123)
     if (this.timer) {
       clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
     }

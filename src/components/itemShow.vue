@@ -24,15 +24,15 @@
         <div class="grid-content bg-purple-light">
           <el-container>
             <el-header height="auto">
-              <div v-if="sdata.item.name" @click="copyThis(sdata.item.name+influences)">
+              <div v-if="sdata.item.name" @click="copyThis(sdata.item.name+' '+influences)">
                 {{ sdata.item.name }}({{ frameType }}){{
                   sdata.item.corrupted
                     ? (sdata.item.scourgeMods ? "(天灾" : "(") + "腐化)"
                     : ""
                 }}{{ influences ? influences : "" }}
               </div>
-              <div v-if="sdata.item.baseType">{{ sdata.item.baseType }}</div>
-              <div v-if="sdata.item.ilvl">物等:{{ sdata.item.ilvl }}</div>
+              <div v-if="sdata.item.baseType" @click="copyThis(sdata.item.baseType)">{{ sdata.item.baseType }}</div>
+              <div v-if="sdata.item.ilvl" @click="copyThis(': '+sdata.item.ilvl)">物等:{{ sdata.item.ilvl }}</div>
               <div v-if="sdata.item.requirements">需求:{{ requirements }}</div>
             </el-header>
             <!-- <el-divider></el-divider> -->
@@ -155,7 +155,7 @@ export default {
       }
 
       if (this.sdata.item.ilvl) {
-        text += '"物.*: ' + this.sdata.item.ilvl + '"';
+        text += '": ' + this.sdata.item.ilvl + '"';
       }
       // let flag = false;
       // if (this.sdata.item.extended) {
