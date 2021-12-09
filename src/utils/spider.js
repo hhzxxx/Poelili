@@ -98,32 +98,26 @@ setTimeout(() => {
   if (store.has("proxyList")) {
     proxyList = store.get("proxyList");
     proxyList.forEach((proxy) => {
-      if (proxy.active) {
-        let address = proxy.address;
-        if (proxy.username && proxy.password) {
-          address =
-            "http://" +
-            proxy.username +
-            ":" +
-            proxy.password +
-            "@" +
-            proxy.address.replace("http://", "");
-        }
-        checkProxy(address).then(
-          (res) => {
-            if (ipReg.test(res.data)) {
-              proxy.active = true;
-            } else {
-              proxy.active = false;
-            }
-            store.set("proxyList", proxyList);
-          },
-          (rej) => {
-            proxy.active = false;
-            store.set("proxyList", proxyList);
-          }
-        );
+      let address = proxy.address;
+      if (proxy.username && proxy.password) {
+        address =
+          "http://" +
+          proxy.username +
+          ":" +
+          proxy.password +
+          "@" +
+          proxy.address.replace("http://", "");
       }
+      checkProxy(address).then(
+        (res) => {
+          proxy.active = true;
+          store.set("proxyList", proxyList);
+        },
+        (rej) => {
+          proxy.active = false;
+          store.set("proxyList", proxyList);
+        }
+      );
     });
   }
 }, 2000);
