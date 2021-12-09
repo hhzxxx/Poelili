@@ -59,6 +59,16 @@
                 <el-divider></el-divider>
               </div>
 
+              <div v-if="sdata.item.enchantMods">
+                <div
+                  v-for="enchantMods in sdata.item.enchantMods"
+                  :key="enchantMods"
+                  @click="copyThis(enchantMods)"
+                >
+                  {{ enchantMods }}
+                </div>
+              </div>
+
               <div v-if="sdata.item.explicitMods">
                 <div
                   v-for="explicitmods in sdata.item.explicitMods"
