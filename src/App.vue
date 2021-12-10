@@ -141,6 +141,7 @@ import {
 import ItemShow from "./components/itemShow.vue";
 import { ElMessage } from "element-plus";
 import audio from "./assets/getitem.mp3";
+const spider = require('./utils/spider')
 
 export default {
   name: "App",
@@ -329,6 +330,8 @@ export default {
     },
   },
   created() {
+    spider.initTxLeagues()
+    spider.initGJLeagues()
     let that = this;
     if (this.timer) {
       clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器

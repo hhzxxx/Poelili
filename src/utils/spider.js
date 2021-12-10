@@ -18,6 +18,7 @@ export {
   initGJLeagues,
   checkProxyOut,
   getProxy,
+  getItemsByList
 };
 
 let proxyList = [];
@@ -261,6 +262,29 @@ function query(data) {
       });
   });
   return promise;
+}
+
+function getItemsByList(item, ...searchList) {
+  return new Promise((resolve, reject) => {
+    if (searchList.length > 0) {
+      let reqList = []
+      searchList.forEach((fetchIds) => {
+        if (fetchIds && fetchIds.length > 0) {
+          reqList.push({
+            code: item.code,
+            searchList: fetchIds,
+            domain: item.domain,
+          })
+        }
+      })
+      if (reqList.length > 0) {
+        axiosAll(reqList).then(
+          (res) => resolve(res),
+          (rej) => reject(rej)
+        )
+      }
+    }
+  })
 }
 
 function fetchItems(data) {
