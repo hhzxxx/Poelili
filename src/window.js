@@ -186,8 +186,32 @@ export class Window {
 		// })
 	}
 
+
+
 	// 创建view
 	createViews(options) {
+		
+		// let proxies = { //append all proxies to this object to allow for user/pass lookup
+		// 	'127.0.0.1:21605': {
+		// 		username: 'user',
+		// 		password: 'pass',
+		// 	}
+		// };
+
+		// app.on('ready', () => {
+		// 	mainWin = new BrowserWindow({show:true});
+
+		// 	mainWin.webContents.session.setProxy('127.0.0.1:21605', () => { //the proxy host value here would be fed in from the existing proxy lib file
+		// 		mainWin.loadURL('https://www.whatismyip.com/'); //PoC to show it actually uses the proxy
+		// 	});
+		// });
+
+		// app.on('login', (event, webContents, request, authInfo, callback) => {
+		// 	let fullProxy = `${authInfo.host}:${authInfo.port}`; //concat proxy for lookup
+
+		// 	callback(proxies[fullProxy].username, proxies[fullProxy].password); //supply credentials to server
+		// });
+
 		const promise = new Promise(function (resolve, reject) {
 			let viewWin = new BrowserWindow({ width: 800, height: 600 })
 			viewWin.removeMenu()
@@ -202,7 +226,10 @@ export class Window {
 			viewWin.setBrowserView(view)
 			view.setBounds({ x: 0, y: 0, width: 800, height: 600 })
 			console.log('new view id：' + view.webContents.id)
-			view.webContents.loadURL(options.url)
+			view.webContents.session.setProxy('127.0.0.1:10809', () => { //the proxy host value here would be fed in from the existing proxy lib file
+				view.webContents.loadURL(options.url); //PoC to show it actually uses the proxy
+			});
+			// view.webContents.loadURL(options.url)
 			viewWin.on('close', () => {
 				resolve(view.webContents.getURL())
 				console.log(view.webContents.getURL())
