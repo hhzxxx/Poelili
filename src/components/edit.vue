@@ -90,6 +90,7 @@ const poeServe = require("../utils/poeServe");
 import store from "../store";
 import { viewCreate, windowCreate } from "../utils/plugins";
 import { ipcRenderer } from "electron";
+const spider = require("../utils/spider");
 
 export default {
   name: "HelloWorld",
@@ -145,6 +146,7 @@ export default {
           (that.sdata.code ? "/" + that.sdata.code : ""),
         POESESSID: store.get("poeSession")[that.sdata.domain],
         domain: poeServe.domains[that.sdata.domain],
+        proxy:spider.takeProxy()
       });
       ipcRenderer.on("view-reply", (event, arg) => {
         let args = arg.split("/");

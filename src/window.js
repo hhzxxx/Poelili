@@ -225,11 +225,20 @@ export class Window {
 			const view = new BrowserView()
 			viewWin.setBrowserView(view)
 			view.setBounds({ x: 0, y: 0, width: 800, height: 600 })
-			console.log('new view id：' + view.webContents.id)
-			view.webContents.session.setProxy('127.0.0.1:10809', () => { //the proxy host value here would be fed in from the existing proxy lib file
-				view.webContents.loadURL(options.url); //PoC to show it actually uses the proxy
+			view.webContents.on('login', (event, webContents, authInfo, callback) => {
+				callback(options.proxy.username, options.proxy.password); //supply credentials to server
 			});
-			// view.webContents.loadURL(options.url)
+			if(options.proxy&&options.proxy.address){
+				console.log(" proxy:"+options.proxy.address)
+				view.webContents.session.setProxy({
+					proxyRules:options.proxy.address
+				}).then(()=>{
+					view.webContents.loadURL(options.url);
+				})
+			}else{
+				view.webContents.loadURL(options.url);
+			}
+			console.log('new view id：' + view.webContents.id  )
 			viewWin.on('close', () => {
 				resolve(view.webContents.getURL())
 				console.log(view.webContents.getURL())

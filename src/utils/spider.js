@@ -18,7 +18,8 @@ export {
   initGJLeagues,
   checkProxyOut,
   getProxy,
-  getItemsByList
+  getItemsByList,
+  takeProxy
 };
 
 let proxyList = [];
@@ -62,7 +63,7 @@ axios.interceptors.response.use(undefined, function axiosRetryInterceptor(err) {
   });
 });
 
-function setProxy(options) {
+function takeProxy(){
   proxyList = store.get("proxyList");
   let proxy = null;
   let index = proxyCount % (proxyList.length + 1);
@@ -73,6 +74,12 @@ function setProxy(options) {
       proxy = proxyList[index];
     }
   }
+  proxyCount++;
+  return proxy;
+}
+
+function setProxy(options) {
+  let proxy = takeProxy();
   if (proxy != null) {
     if (proxy.username && proxy.password) {
       options.proxy =
@@ -86,9 +93,6 @@ function setProxy(options) {
       options.proxy = proxy.address;
     }
   }
-  proxyCount++;
-  console.log("proxyCount :" + proxyCount);
-  console.log("proxy :" + options.proxy);
   return options;
 }
 
