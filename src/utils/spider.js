@@ -2,7 +2,6 @@ let request = require("request");
 let axios = require("axios");
 const poeServe = require("../utils/poeServe");
 import store from "../store";
-import nodeTimer from "../utils/schedule";
 
 // module.exports = {
 //   handleRequestByPromise,
@@ -19,7 +18,8 @@ export {
   checkProxyOut,
   getProxy,
   getItemsByList,
-  takeProxy
+  takeProxy,
+  caimoguApi
 };
 
 let proxyList = [];
@@ -353,6 +353,21 @@ function initGJLeagues() {
     } else {
       reject("no sessionid");
     }
+  });
+  return promise;
+}
+
+function caimoguApi(options) {
+  const promise = new Promise(function (resolve, reject) {
+    options['cookie'] = store.get("caimoguCookie")
+    axios
+      .post(`http://localhost:9091/poelili/caimogu`, options)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
   });
   return promise;
 }

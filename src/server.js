@@ -122,6 +122,32 @@
     });
   });
 
+  app.post("/poelili/caimogu", function (req, res) {
+    let options = {
+      url: req.body.url,
+      method: req.body.method,
+      headers: {
+        accept: "*/*",
+        cookie: `CAIMOGU=${req.body.cookie}`,
+        "User-Agent": "lolixxx",
+      },
+      rejectUnauthorized: false,
+      requestCert: false,
+      agent: false,
+    };
+    if (req.body.proxy) {
+      options.proxy = `${req.body.proxy}`;
+    }
+    request(options, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        res.send(body);
+      } else {
+        console.log(error);
+        res.send(error);
+      }
+    });
+  });
+
   app.post("/poelili/trade", function (req, res) {
     console.log(
       moment().format("HH:mm:ss"),

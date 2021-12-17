@@ -45,7 +45,8 @@
     <router-link to="/PoeSession"> PoeSession</router-link> |
     <router-link to="/Main"> Main</router-link> |
     <router-link to="/checkValue"> checkValue</router-link> |
-    <router-link to="/Proxy"> proxy</router-link> 
+    <router-link to="/Proxy"> proxy</router-link> |
+    <router-link to="/CaiMoGu"> 蘑菇工艺</router-link>
   </div>
   <router-view></router-view>
   <el-tabs v-model="activeName" @tab-click="handleClick">

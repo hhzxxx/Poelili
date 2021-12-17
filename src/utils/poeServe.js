@@ -18,3 +18,6 @@ export const wsnginxapi = {
 	2: 'poegjsocket',
 }
 
+export const caomoguUrls = {
+	myList:"https://www.caimogu.net/poe/garden/my.html"
+}
