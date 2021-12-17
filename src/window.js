@@ -190,28 +190,6 @@ export class Window {
 
 	// 创建view
 	createViews(options) {
-		
-		// let proxies = { //append all proxies to this object to allow for user/pass lookup
-		// 	'127.0.0.1:21605': {
-		// 		username: 'user',
-		// 		password: 'pass',
-		// 	}
-		// };
-
-		// app.on('ready', () => {
-		// 	mainWin = new BrowserWindow({show:true});
-
-		// 	mainWin.webContents.session.setProxy('127.0.0.1:21605', () => { //the proxy host value here would be fed in from the existing proxy lib file
-		// 		mainWin.loadURL('https://www.whatismyip.com/'); //PoC to show it actually uses the proxy
-		// 	});
-		// });
-
-		// app.on('login', (event, webContents, request, authInfo, callback) => {
-		// 	let fullProxy = `${authInfo.host}:${authInfo.port}`; //concat proxy for lookup
-
-		// 	callback(proxies[fullProxy].username, proxies[fullProxy].password); //supply credentials to server
-		// });
-
 		const promise = new Promise(function (resolve, reject) {
 			let viewWin = new BrowserWindow({ width: 800, height: 600 })
 			viewWin.removeMenu()
