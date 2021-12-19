@@ -142,6 +142,7 @@ import {
 import ItemShow from "./components/itemShow.vue";
 import { ElMessage } from "element-plus";
 import audio from "./assets/getitem.mp3";
+const caimoguApi = require("./utils/caimogu")
 const spider = require('./utils/spider')
 
 export default {
@@ -331,6 +332,10 @@ export default {
     },
   },
   created() {
+    if (store.has("caimoguCookie")) {
+      store.delete("caimoguCookie")
+    }
+    caimoguApi.login()
     spider.initTxLeagues()
     spider.initGJLeagues()
     let that = this;
@@ -341,7 +346,9 @@ export default {
       this.timerTime = store.get("timerTime");
     }
     that.itemList = store.get("itemList");
+    let count = 0
     this.timer = setInterval(function () {
+      count++;
       if (store.has("itemList")) {
         that.itemList = store.get("itemList");
         if (!that.wsState) {
@@ -383,6 +390,10 @@ export default {
             if(flag && that.wsClient[wsCode]){
               that.wsClient[wsCode].close();
             }
+          }
+          if(count > 15){
+            count = 0;
+            caimoguApi.fresh()
           }
         }
       }

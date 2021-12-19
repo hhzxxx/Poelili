@@ -130,17 +130,32 @@
         accept: "*/*",
         cookie: `CAIMOGU=${req.body.cookie}`,
         "User-Agent": "lolixxx",
+        origin:"https://www.caimogu.net",
+        "x-requested-with":"XMLHttpRequest",
+        referer:req.body.url
+        // ":method":req.body.method
       },
       rejectUnauthorized: false,
       requestCert: false,
       agent: false,
     };
-    if (req.body.proxy) {
-      options.proxy = `${req.body.proxy}`;
+    if (req.body.formData) {
+      options.form = req.body.formData;
+    }
+    if(req.body.method == "POST" && req.body.type == "form"){
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8'
     }
     request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        res.send(body);
+        let result = {
+          body:body
+        }
+        if(response.headers){
+          if(response.headers['set-cookie']){
+            result['set-cookie'] = response.headers['set-cookie']
+          }
+        }
+        res.send(result);
       } else {
         console.log(error);
         res.send(error);
