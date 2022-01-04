@@ -36,6 +36,10 @@
       ws监听
       <el-switch v-model="wsState" />
     </div>
+    <div style="float: right; margin-left: 10px">
+      蘑菇
+      <el-switch v-model="moguState" />
+    </div>
   </div>
 
   <div style="margin-top: 30px"></div>
@@ -165,6 +169,7 @@ export default {
       wsClient: {},
       wsReady: {},
       wsState: true,
+      moguState:false,
       wsPoolList: {},
       wsCount: 0,
       Delete,
@@ -391,7 +396,7 @@ export default {
               that.wsClient[wsCode].close();
             }
           }
-          if(count > 15){
+          if(count > 15 && that.moguState){
             count = 0;
             caimoguApi.fresh()
           }

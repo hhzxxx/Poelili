@@ -35,7 +35,7 @@
       <el-form-item label="备注">
         <el-input v-model="sdata.name" placeholder="reamrk"></el-input>
       </el-form-item>
-      <el-form-item v-if="!add" label="ws读取数">
+      <el-form-item v-if="false" label="ws读取数">
         <el-input
           :disabled="add"
           v-model="sdata.wsLength"
@@ -56,6 +56,7 @@
           placeholder="maxPrice"
         ></el-input>
       </el-form-item>
+
       <el-form-item v-if="!add" label="排序">
         <el-select
           :disabled="add"
