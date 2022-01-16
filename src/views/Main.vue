@@ -70,7 +70,23 @@
     <el-form-item label="">
       <el-switch v-model="data.active" />
     </el-form-item>
-    <el-form-item>
+
+<el-form-item>
+      <el-dropdown split-button="true" hide-timeout="250" @click="editShow(index)" size="small" max-height="100px" placement="bottom-end" type="primary" @command="handleCommand">
+      <span class="el-dropdown-link">
+        edit 
+      </span>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item :command="'test_'+index">test</el-dropdown-item>
+          <el-dropdown-item :command="'delete_'+index">delete</el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+</el-form-item>
+
+
+    <!-- <el-form-item>
       <el-button type="primary" @click="editShow(index)">edit</el-button>
     </el-form-item>
     <el-form-item>
@@ -78,7 +94,7 @@
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="deleteItem(index)">delete</el-button>
-    </el-form-item>
+    </el-form-item> -->
   </el-form>
   <el-row>
     <el-button type="primary" @click="addItem">Add</el-button>
@@ -211,10 +227,20 @@ export default {
         this.formData.splice(index, 1);
       }
     },
+    handleCommand(command){
+      let strs = command.split("_")
+      if(strs[0] == "test"){
+        ElMessage("开始获取");
+        this.getByCode(strs[1])
+      }else{
+        this.deleteItem(strs[1])
+      }
+    },
     /**获取e价格 */
     getEcRate(type) {
+      let exCode = store.get("exCode")
       let itemData = {
-        code: type == 1 ? "2Xb7pjUk" : "NV6ofp", //
+        code: exCode[type], //
         domain: type,
         league: this.leagues[type][0].text,
       };
