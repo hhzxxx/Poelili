@@ -80,7 +80,7 @@
         }
       })"
       :key="item.id"
-      @click="copy(item.listing.whisper)"
+      @click="copy(item.listing.whisper,item.fetchItem.domain)"
       class="infinite-list-item"
     >
       <img style="height: 100%" :src="item.item.icon" />
@@ -196,16 +196,18 @@ export default {
     closeWin() {
       ipcRenderer.send("window-closed");
     },
-    copy(text) {
-      this.$copyText(text).then(
-        (e) => {
-          ElMessage("复制成功");
-          console.log("复制成功");
-        },
-        (e) => {
-          console.log("复制成功");
-        }
-      );
+    copy(text,domain) {
+      if(domain == "1"){
+        this.$copyText(text).then(
+          (e) => {
+            ElMessage("复制成功");
+            console.log("复制成功");
+          },
+          (e) => {
+            console.log("复制成功");
+          }
+        );
+      }
     },
     handleClick() {},
     showItem(id) {
@@ -262,6 +264,7 @@ export default {
         delete that.wsClient[item.code]
         that.wsReady[item.code] = null;
         delete that.wsReady[item.code]
+        
         ElMessage(fetchItem.name + ",连接异常");
       };
 

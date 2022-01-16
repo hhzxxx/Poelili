@@ -84,7 +84,6 @@
                 {{ sdata.item.note }}
               </div>
               <el-button
-                v-if="sdata.fetchItem.domain == 1"
                 type="text"
                 @click="copyText"
                 >市集搜索语句</el-button
@@ -193,7 +192,9 @@ export default {
       //     text += '"' + element + '" ';
       //   });
       // }
-
+      if(this.sdata.fetchItem.domain == 2){
+        text = this.sdata.listing.whisper
+      }
       this.$copyText(text).then(
         (e) => {
           ElMessage("复制成功");
