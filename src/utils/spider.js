@@ -1,14 +1,6 @@
-let request = require("request");
 let axios = require("axios");
 const poeServe = require("../utils/poeServe");
 import store from "../store";
-
-// module.exports = {
-//   handleRequestByPromise,
-//   getQueryByCode,
-//   query,
-//   fetchItems
-// };
 export {
   axiosAll,
   getQueryByCode,
@@ -19,7 +11,10 @@ export {
   getProxy,
   getItemsByList,
   takeProxy,
-  caimoguApi
+  caimoguApi,
+  uploadItem,
+  onlineList,
+  deleteOnlineItem
 };
 
 let proxyList = [];
@@ -362,6 +357,49 @@ function caimoguApi(options) {
     options['cookie'] = store.get("caimoguCookie")
     axios
       .post(`http://localhost:9091/poelili/caimogu`, options)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  });
+  return promise;
+}
+
+function uploadItem(item){
+  const promise = new Promise(function (resolve, reject) {
+    axios
+      .post(`http://49.234.3.138/magicApi/poelili/item/save`, item)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  });
+  return promise;
+}
+
+
+function onlineList(){
+  const promise = new Promise(function (resolve, reject) {
+    axios
+      .post(`http://49.234.3.138/magicApi/poelili/item/find`, {})
+      .then((response) => {
+        resolve(response);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  });
+  return promise;
+}
+
+function deleteOnlineItem(code){
+  const promise = new Promise(function (resolve, reject) {
+    axios
+      .post(`http://49.234.3.138/magicApi/poelili/item/delete`, {code:code})
       .then((response) => {
         resolve(response);
       })

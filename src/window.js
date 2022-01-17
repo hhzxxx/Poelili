@@ -220,6 +220,9 @@ export class Window {
 			viewWin.on('close', () => {
 				resolve(view.webContents.getURL())
 				console.log(view.webContents.getURL())
+				view.webContents.session.cookies.get({
+					name:'POESESSID'
+				}).then(res => console.log(res))
 			})
 		})
 		return promise

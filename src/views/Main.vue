@@ -5,9 +5,18 @@
     size="mini"
     class="demo-form-inline"
   >
-    <el-form-item style="margin-right: 60px" label="获取时间">
-      <div>{{ EcRate.date }}</div>
+
+    <el-form-item>
+      <el-button type="primary" @click="onlineList">云</el-button>
     </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="hideAll">隐藏</el-button>
+    </el-form-item>
+
+
+    <!-- <el-form-item style="margin-right: 60px" label="获取时间">
+      <div>{{ EcRate.date }}</div>
+    </el-form-item> -->
     <el-form-item v-loading="txValueLoading" label="腾讯服EC比">
       <div>{{ EcRate.txValue }}</div>
     </el-form-item>
@@ -21,8 +30,25 @@
       <el-button type="primary" @click="getEcRate(2)">刷新</el-button>
     </el-form-item>
   </el-form>
+  <el-tabs v-model="activeName" @tab-click="handleClick">
+    <el-tab-pane :label="'全部'" name="all"></el-tab-pane>
+    <el-tab-pane
+      v-for="type in typeList"
+      :key="type"
+      :label="type"
+      :name="type"
+    >
+    </el-tab-pane>
+  </el-tabs>
+
   <el-form
-    v-for="(data, index) in formData"
+    v-for="(data, index) in formData.filter((obj) => {
+        if (activeName === 'all') {
+          return true
+        } else {
+          return obj.type === activeName
+        }
+      })"
     :key="index"
     :inline="true"
     :model="formInline"
@@ -80,6 +106,7 @@
         <el-dropdown-menu>
           <el-dropdown-item :command="'test_'+index">test</el-dropdown-item>
           <el-dropdown-item :command="'delete_'+index">delete</el-dropdown-item>
+          <el-dropdown-item :command="'upload_'+index">upload</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -104,6 +131,13 @@
     :leagues="leagues"
     v-model="itemShow"
   ></EditShow>
+
+  <OnlineList
+    width="80%"
+    @downItem="downItem"
+    :data="onlineListData"
+    v-model="onlineListShow"
+  ></OnlineList>
 </template>
 
 <script>
@@ -114,10 +148,12 @@ const MathUtils = require("../utils/MathUtils");
 import store from "../store";
 import dateUtil from "../utils/DateUtil";
 import EditShow from "../components/edit.vue";
+import OnlineList from "../components/onlineList.vue";
 
 export default {
   components: {
     EditShow,
+    OnlineList
   },
   name: "HelloWorld",
   props: {
@@ -141,17 +177,26 @@ export default {
       gjValueLoading: false,
       editShowData: {},
       itemShow: false,
+      onlineListShow:false,
+      onlineListData:[],
+      typeList:[],
+      activeName:"all"
     };
   },
   watch: {
     formData: {
       handler(newData, oldData) {
         let saveData = [];
+        let typeList = []
         newData.forEach((element) => {
           if (element.code && element.domain && element.league) {
             saveData.push(element);
           }
+          if(element.type && !typeList.includes(element.type)){
+            typeList.push(element.type)
+          }
         });
+        this.typeList = typeList
         store.set("itemList", saveData);
       },
       deep: true,
@@ -227,14 +272,44 @@ export default {
         this.formData.splice(index, 1);
       }
     },
+    uploadItem(index){
+      spider.uploadItem(this.formData[index]).then((res)=>{
+        if(res.data.body > 0){
+          ElMessage("上传成功");
+        }
+        if(res.data.body == 0){
+          ElMessage("更新成功");
+        }
+      })
+    },
+    downItem(item){
+      this.onlineListShow=false
+      if(item){
+        this.formData.push(item)
+      }
+    },
     handleCommand(command){
       let strs = command.split("_")
       if(strs[0] == "test"){
         ElMessage("开始获取");
         this.getByCode(strs[1])
-      }else{
+      }else if(strs[0] == "delete"){
         this.deleteItem(strs[1])
+      }else if(strs[0] == "upload"){
+        this.uploadItem(strs[1])
       }
+    },
+    hideAll(){
+      this.activeName = "0021312"
+    },
+    onlineList(){
+      let that = this
+      spider.onlineList().then(res =>{
+        that.onlineListShow = true;
+        that.onlineListData = res.data.body.filter((data)=>{
+          return that.formData.filter(nowData => nowData.code == data.code).length == 0
+        })
+      })
     },
     /**获取e价格 */
     getEcRate(type) {

@@ -35,6 +35,9 @@
       <el-form-item label="备注">
         <el-input v-model="sdata.name" placeholder="reamrk"></el-input>
       </el-form-item>
+      <el-form-item label="分类">
+        <el-input v-model="sdata.type" placeholder="type"></el-input>
+      </el-form-item>
       <el-form-item v-if="false" label="ws读取数">
         <el-input
           :disabled="add"
@@ -89,7 +92,6 @@
 <script>
 const poeServe = require("../utils/poeServe");
 import store from "../store";
-import { viewCreate, windowCreate } from "../utils/plugins";
 import { ipcRenderer } from "electron";
 const spider = require("../utils/spider");
 
