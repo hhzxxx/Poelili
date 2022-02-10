@@ -10,7 +10,7 @@
       <el-button type="primary" @click="onlineList">云</el-button>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="hideAll">隐藏</el-button>
+      <el-button type="primary" @click="hideAll">{{hideName}}</el-button>
     </el-form-item>
 
 
@@ -55,6 +55,7 @@
     label-width="0px"
     size="mini"
     class="demo-form-inline"
+    
   >
     <el-form-item size="mini" label="">
       <el-select
@@ -70,13 +71,13 @@
 
     <el-form-item label="">
       <el-input
-        input-style="min-width:120px;max-width:150px"
+        input-style="min-width:100px;max-width:120px"
         v-model="data.name"
         @click="clickName(data.name)"
         placeholder="reamrk"
       ></el-input>
     </el-form-item>
-    <el-form-item label-width="60px" label="均价">
+    <el-form-item label="">
       <div>{{ data.averagePrice }}</div>
     </el-form-item>
     <el-form-item label="">
@@ -88,7 +89,7 @@
     </el-form-item>
     <el-form-item label="">
       <el-input
-        input-style="min-width:20px;max-width:40px"
+        input-style="min-width:30px;max-width:50px"
         v-model="data.wsLength"
         placeholder="wsLength"
       ></el-input>
@@ -97,38 +98,37 @@
       <el-switch v-model="data.active" />
     </el-form-item>
 
-<el-form-item>
-      <el-dropdown split-button="true" hide-timeout="250" @click="editShow(index)" size="small" max-height="100px" placement="bottom-end" type="primary" @command="handleCommand">
-      <span class="el-dropdown-link">
-        edit 
-      </span>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item :command="'test_'+index">test</el-dropdown-item>
-          <el-dropdown-item :command="'delete_'+index">delete</el-dropdown-item>
-          <el-dropdown-item :command="'upload_'+index">upload</el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
-</el-form-item>
-
-
-    <!-- <el-form-item>
-      <el-button type="primary" @click="editShow(index)">edit</el-button>
-    </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="getByCode(index)">test</el-button>
+          <el-dropdown split-button="true" hide-timeout="250" @click="editShow(index)" size="small" max-height="100px" placement="bottom-end" type="primary" @command="handleCommand">
+          <span class="el-dropdown-link">
+            edit 
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item :command="'test_'+index">test</el-dropdown-item>
+              <el-dropdown-item :command="'delete_'+index">delete</el-dropdown-item>
+              <el-dropdown-item :command="'upload_'+index">upload</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
     </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="deleteItem(index)">delete</el-button>
-    </el-form-item> -->
+    <el-form-item label="">
+      <el-switch v-model="data.autoCopy" />
+    </el-form-item>
   </el-form>
   <el-row>
-    <el-button type="primary" @click="addItem">Add</el-button>
+    <el-button type="primary" size="small" @click="addItem">Add</el-button>
+    <el-button type="primary" size="small" @click="uploadAll">上传</el-button>
   </el-row>
   <EditShow
     :data="editShowData"
     :leagues="leagues"
+    :options="typeList.map((type)=>{
+      return {
+        value:type,
+        label:type
+      }
+    })"
     v-model="itemShow"
   ></EditShow>
 
@@ -180,7 +180,8 @@ export default {
       onlineListShow:false,
       onlineListData:[],
       typeList:[],
-      activeName:"all"
+      activeName:"all",
+      hideName:"隐藏"
     };
   },
   watch: {
@@ -258,10 +259,20 @@ export default {
       );
     },
     editShow(index) {
+      let that = this
+      let item = this.formData.filter((obj) => {
+        if (that.activeName === 'all') {
+          return true
+        } else {
+          return obj.type === that.activeName
+        }
+      })[index]
+      index = this.formData.indexOf(item)
       this.editShowData = this.formData[index];
       this.itemShow = true;
     },
     addItem() {
+      this.activeName = 'all'
       this.formData.push(new objects.ItemDate());
       this.editShow(this.formData.length - 1);
     },
@@ -282,21 +293,41 @@ export default {
         }
       })
     },
+    uploadAll(){
+      let that = this
+      this.formData.forEach((obj,index) => {
+        if (that.activeName === 'all') {
+          that.uploadItem(index)
+        } else if (obj.type === that.activeName) {
+          that.uploadItem(index)
+        }
+      })
+    },
     downItem(item){
-      this.onlineListShow=false
+      // this.onlineListShow=false
       if(item){
         this.formData.push(item)
       }
     },
     handleCommand(command){
       let strs = command.split("_")
+      let index = strs[1]
+      let that = this
+      let item = this.formData.filter((obj) => {
+        if (that.activeName === 'all') {
+          return true
+        } else {
+          return obj.type === that.activeName
+        }
+      })[index]
+      index = this.formData.indexOf(item)
       if(strs[0] == "test"){
         ElMessage("开始获取");
-        this.getByCode(strs[1])
+        this.getByCode(index)
       }else if(strs[0] == "delete"){
-        this.deleteItem(strs[1])
+        this.deleteItem(index)
       }else if(strs[0] == "upload"){
-        this.uploadItem(strs[1])
+        this.uploadItem(index)
       }
     },
     hideAll(){
@@ -308,6 +339,9 @@ export default {
         that.onlineListShow = true;
         that.onlineListData = res.data.body.filter((data)=>{
           return that.formData.filter(nowData => nowData.code == data.code).length == 0
+        }).map( data => {
+          delete data.json
+          return data
         })
       })
     },

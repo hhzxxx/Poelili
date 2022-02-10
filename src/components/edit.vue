@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :model="show" title="新增">
+  <el-dialog :model="show" title="新增" custom-class="editDia">
     <el-form ref="form" :model="sdata">
       <el-form-item size="mini" label="Serve">
         <el-select
@@ -27,6 +27,7 @@
       </el-form-item>
       <el-form-item label="Code">
         <el-input
+          @click="clickName"
           :disabled="codeDis"
           v-model="sdata.code"
           placeholder="code"
@@ -36,7 +37,16 @@
         <el-input v-model="sdata.name" placeholder="reamrk"></el-input>
       </el-form-item>
       <el-form-item label="分类">
-        <el-input v-model="sdata.type" placeholder="type"></el-input>
+        <el-select-v2
+          v-model="sdata.type"
+          :options="options"
+          placeholder="type"
+          style="width: 240px; vertical-align: middle"
+          allow-create
+          filterable
+          clearable
+        />
+        <!-- <el-input v-model="sdata.type" placeholder="type"></el-input> -->
       </el-form-item>
       <el-form-item v-if="false" label="ws读取数">
         <el-input
@@ -101,8 +111,16 @@ export default {
     data: Object,
     leagues: Object,
     show: Boolean,
+    options:Object
   },
   methods: {
+    clickName() {
+      this.$copyText(poeServe.domains[this.sdata.domain]+'/trade/search/'+this.sdata.league+'/'+this.sdata.code).then(
+        (e) => {
+        },
+        (e) => {}
+      );
+    },
     changeSort(val) {
       if (store.has("queryList." + this.sdata.code)) {
         store.set("queryList." + this.sdata.code + ".sort", JSON.parse(val));
@@ -222,19 +240,26 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
+<style  lang="scss">
+.editDia{
+  h3 {
+    margin: 40px 0 0;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  a {
+    color: #42b983;
+  }
+  .el-form-item__content .el-select-v2__placeholder{
+    width: auto;
+      margin-inline-start: auto;
+  }
 }
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>

@@ -69,15 +69,28 @@
                 </div>
               </div>
 
+              <div v-if="sdata.item.fracturedMods">
+                <div
+                  v-for="fracturedMods in sdata.item.fracturedMods"
+                  :key="fracturedMods"
+                  @click="copyThis(fracturedMods)"
+                  style="color: #a29162;"
+                >
+                  {{ fracturedMods }}
+                </div>
+              </div>
+
               <div v-if="sdata.item.explicitMods">
                 <div
                   v-for="explicitmods in sdata.item.explicitMods"
                   :key="explicitmods"
                   @click="copyThis(explicitmods)"
+                  style="color: #88f;"
                 >
                   {{ explicitmods }}
                 </div>
               </div>
+
             </el-main>
             <el-footer>
               <div v-if="sdata.item.note" @click="copyThis(sdata.item.note)">

@@ -62,7 +62,7 @@
       })"
       :key="item.id"
       @click="copy(item.listing.whisper,item.fetchItem.domain)"
-      class="infinite-list-item"
+      v-bind:class="{ read: item.isRead, 'infinite-list-item': true }"
     >
       <img style="height: 100%" :src="item.item.icon" />
       <div style="margin-left: 12px">
@@ -134,7 +134,6 @@ export default {
   watch: {
     timerTime: {
       handler(newData, oldData) {
-        console.log(newData)
       },
       deep: true,
     },
@@ -154,10 +153,8 @@ export default {
         this.$copyText(text).then(
           (e) => {
             ElMessage("复制成功");
-            console.log("复制成功");
           },
           (e) => {
-            console.log("复制成功");
           }
         );
       }
@@ -167,7 +164,7 @@ export default {
       let index = this.newList.findIndex((item) => item.id === id)
       this.itemShowData = this.newList[index]
       this.itemShow = true
-      console.log(this.itemShowData)
+      this.newList[index].isRead = true
     },
     deleteLine(id) {
       let index = this.newList.findIndex((item) => item.id === id)
@@ -238,6 +235,15 @@ export default {
             that.wsPoolList[fetchItem.code] = []
             listenAction.getWsItems(newList, fetchItem).then(
               (res) => {
+                if(res[0].fetchItem.autoCopy){
+                  that.$copyText(res[0].listing.whisper).then(
+                    (e) => {
+                      ElMessage("复制成功");
+                    },
+                    (e) => {
+                    }
+                  );
+                }
                 that.showNewItem(res)
               },
               (rej) => {},
@@ -324,7 +330,6 @@ export default {
             }
           })
           for (let wsCode in that.wsClient) {
-            console.log("now ws:" + wsCode)
             let flag = true
             that.itemList.forEach((item, index) => {
               if (item.code == wsCode) {
@@ -344,7 +349,6 @@ export default {
     }, 1000)
   },
   beforeUnmount() {
-    console.log(123)
     if (this.timer) {
       clearInterval(this.timer) // 在Vue实例销毁前，清除我们的定时器
     }
@@ -366,17 +370,20 @@ export default {
   padding: 0;
   margin: 0;
   list-style: none;
+  .read{
+    background-color: #409eff !important;
+    color: black !important;
+  }
+  .infinite-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    background: var(--el-color-primary-light-9);
+    margin: 10px;
+    color: var(--el-color-primary);
+  }
 }
-.infinite-list .infinite-list-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50px;
-  background: var(--el-color-primary-light-9);
-  margin: 10px;
-  color: var(--el-color-primary);
-}
-
 .list-item {
   margin-top: 10px;
 }
