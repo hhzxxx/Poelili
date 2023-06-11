@@ -211,7 +211,7 @@ function getQueryByCode(data) {
         })
         .then(
           (response) => {
-            let pattern = /t\({.*?\);/;
+            let pattern = /t\({.*?\);/gs;
             let jsonStr = response.data
               .match(pattern)[0]
               .replaceAll("t(", "")
@@ -313,7 +313,7 @@ function initTxLeagues() {
           cookie: store.get("poeSession")[1],
         })
         .then((response) => {
-          let pattern = /t\({.*?\);/;
+          let pattern = /t\({.*?\);/gs;
           let jsonStr = response.data
             .match(pattern)[0]
             .replaceAll("t(", "")
@@ -337,7 +337,7 @@ function initGJLeagues() {
           cookie: store.get("poeSession")[2],
         })
         .then((response) => {
-          let pattern = /t\({.*?\);/;
+          let pattern = /t\({.*?\);/gs;
           let jsonStr = response.data
             .match(pattern)[0]
             .replaceAll("t(", "")

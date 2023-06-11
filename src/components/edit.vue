@@ -27,7 +27,7 @@
       </el-form-item>
       <el-form-item label="Code">
         <el-input
-          @click="clickName"
+          @dblclick="clickName"
           :disabled="codeDis"
           v-model="sdata.code"
           placeholder="code"
