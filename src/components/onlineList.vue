@@ -67,8 +67,6 @@
 
 <script>
 const poeServe = require("../utils/poeServe");
-import store from "../store";
-import { ipcRenderer } from "electron";
 const spider = require("../utils/spider");
 
 export default {
