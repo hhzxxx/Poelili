@@ -25,12 +25,10 @@
       "minWidth": 960,
       "minHeight": 600,
       "maximize": false,
-      "exitProcessOnClose": true,
-      "icon": "/resources/assets/icon.png"
+      "exitProcessOnClose": true
     }
   },
   "cli": {
-    "binaryName": "Poelili",
-    "binaryVersion": "nightly"
+    "binaryName": "Poelili"
   }
 }

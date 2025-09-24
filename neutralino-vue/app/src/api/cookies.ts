@@ -28,3 +28,9 @@ export async function verifyAccount(id: string): Promise<{ ok: boolean; reason?:
   // TODO: 发起一次受保护接口请求验证 cookie 的有效性
   return { ok: true };
 }
+
+export async function getAnyActiveCookie(): Promise<string|undefined>{
+  const db = await openDatabase();
+  const res = db.exec("SELECT cookie_enc FROM accounts WHERE status='active' LIMIT 1");
+  return res[0]?.values?.[0]?.[0];
+}

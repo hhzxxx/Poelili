@@ -12,8 +12,8 @@
 - 数据：SQLite（sql.js WASM，定期持久化到 data/db/app.db）。
 - 系统能力桥：使用 Neutralino 的 `os.spawnProcess`/`filesystem`/`events` 等访问系统。
 - 外部 EXE：
-  - `ImgOps.exe`：窗口操作与图色识别（点击/键入/截图/模板匹配/找色/等待像素）。
-  - `HttpCli.exe`：带代理/超时/重试/限速的 HTTP 客户端。
+  - `ImgOps.exe`：窗口操作与图色识别（点击/键入/截图/模板匹配/找色/等待像素）。支持守护进程（JSONL 标准输入输出）与一次性调用双模式。
+  - `HttpCli.exe`（可选）：如需更强的 HTTP 能力或自定义代理协议时使用；当前实现默认使用 axios/WebSocket，代理时回退系统 curl。
   - `Updater.exe`：远程更新器（下载包后原子替换，支持回滚与重启）。
 
 ## 目录结构
@@ -47,6 +47,8 @@ neutralino-vue/
         logger.ts
         process.ts
         paths.ts
+        automationDaemon.ts
+        ws.ts
       domain/
         auth/
         trade/
@@ -57,8 +59,8 @@ neutralino-vue/
   resources/                 # 由 Vite 构建产物填充
   bin/
     ImgOps.exe               # 外部 .NET 图色/自动化工具
-    HttpCli.exe              # 外部 .NET HTTP 客户端
     Updater.exe              # 外部 .NET 自更新替换器
+    # HttpCli.exe            # 可选：如采用外部 HTTP 客户端
   data/
     db/app.db
     logs/app.log
@@ -77,12 +79,14 @@ neutralino-vue/
 - `api/paths.ts`：可配置的外部工具与数据目录路径解析，默认指向 `bin/` 与 `data/`。
 - `api/storage.ts`：sql.js 初始化、DB 迁移、周期性 flush；配置 JSON 读写。
 - `api/logger.ts`：结构化日志（文件滚动+UI 控制台），脱敏敏感信息。
-- `api/http.ts`：基础 fetch；
-- `api/proxyClient.ts`：经由 `HttpCli.exe` 的请求（代理、超时、重试、限速、路由策略）。
+- `api/http.ts`：axios 请求；
+- `api/proxyClient.ts`：带代理请求回退到系统 `curl`（通过 Neutralino 调用），避免额外 EXE。
+- `api/ws.ts`：浏览器原生 WebSocket 封装（自动重连）。
 - `api/cookies.ts`：多账号 Cookie 加密存取（可复用 .NET DPAPI 子命令）、校验、脱敏。
 - `api/trade.ts`：市集监听引擎（规则模型、轮询、去重、事件通知）。
 - `api/scheduler.ts`：轻量任务调度（interval/cron/once）。
-- `api/automationBridge.ts`：自动化/图色动作桥（点击、键入、模板匹配、等待像素等）。
+- `api/automationBridge.ts`：自动化/图色动作桥（优先长驻进程 JSONL，失败回退一次性调用）。
+- `api/automationDaemon.ts`：ImgOps 守护进程桥（stdin/stdout JSON 行协议，请求-响应映射与超时管理）。
 - `api/updater.ts`：更新检查、下载包、调用 `Updater.exe` 执行替换与重启。
 
 ## Neutralino 配置关键点（neutralino.config.json）
@@ -147,6 +151,7 @@ neutralino-vue/
     "typescript": "^5"
   },
   "dependencies": {
+    "axios": "^1",
     "sql.js": "^1.11.0",
     "zod": "^3"
   }
@@ -175,17 +180,10 @@ neutralino-vue/
   - `keypress --text=STRING`
   - `find-template --img=PATH --th=0.85 [--area=x,y,w,h]`
   - `wait-pixel --x= --y= --rgb=#RRGGBB --timeout=MS`
-- 输出：
-```json
-{ "ok": true, "data": { "x": 100, "y": 200, "score": 0.91 } }
-```
+- 守护进程模式：启动参数 `--daemon`，进程 stdin/stdout 使用 JSON 行协议：`{id, cmd, params}` → `{id, ok, data|error}`。
 
-### HttpCli.exe（HTTP with Proxy）
-- 参数：`--url= --method=GET --timeout=8000 --proxy=http://user:pass@host:port --h:Header=Value --body=...`
-- 输出：
-```json
-{ "status": 200, "headers": { "content-type": "application/json" }, "body": "...", "durationMs": 123 }
-```
+### 代理回退（系统 curl）
+- 当 `useProxy` 为真时，HTTP 请求通过系统 `curl.exe` 执行（`-sS -i --max-time --proxy`），解析响应头与体；无需额外 HttpCli.exe。
 
 ### Updater.exe（远程更新）
 - 参数：`--zip=... --appdir=... --relaunch=1`。
@@ -218,7 +216,7 @@ neutralino-vue/
 - 限速器：令牌桶（rps+burst）。
 
 ## 安全
-- Cookie 加密：建议在 `HttpCli.exe` 增加 `encrypt/decrypt` 子命令调用 DPAPI；
+- Cookie 加密：建议在外部工具增加 `encrypt/decrypt` 子命令调用 DPAPI；
 - UI 脱敏显示；导出需二次确认并加密。
 - 日志脱敏（头部与 cookie）。
 
@@ -231,9 +229,9 @@ neutralino-vue/
 
 ## 迁移步骤（建议 2-3 周）
 1) 初始化 Neutralino+Vue3 骨架，落地 `process.ts`/`paths.ts`/`storage.ts`/`logger.ts`。
-2) 代理池与 `HttpCli.exe` 通路，完成健康检测、评分与路由、限速器。
+2) 代理池与网络：axios/WS，代理回退系统 curl。
 3) 市集监听规则/轮询/去重/通知；接入代理网络层。
-4) 自动化桥与 `ImgOps.exe`，实现点击/等待像素/模板匹配；提供调试页。
+4) 自动化桥与 `ImgOps.exe`：优先守护进程 JSONL，失败回退一次性调用；提供调试页。
 5) 自更新链路与设置页；体积优化与安装包出包。
 
 ## 验收标准
