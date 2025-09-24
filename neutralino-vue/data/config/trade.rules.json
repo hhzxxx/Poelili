@@ -1,0 +1,10 @@
+[
+  {
+    "id": "demo-rule-1",
+    "name": "示例监听规则",
+    "query": { "keyword": "six-link", "maxPrice": 10 },
+    "freq_s": 30,
+    "timeout": 6000,
+    "enabled": true
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "sources": [],
+  "healthCheck": { "intervalSec": 300, "timeoutMs": 4000, "tries": 2 },
+  "scoring": { "latencyWeight": 0.5, "successWeight": 0.5, "decay": 0.9 },
+  "routing": { "strategy": "weighted", "bindByAccount": true, "maxConcurrency": 8 },
+  "rateLimit": { "rps": 2, "burst": 4 }
+}

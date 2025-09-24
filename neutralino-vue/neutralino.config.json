@@ -1,0 +1,36 @@
+{
+  "applicationId": "poelili.app",
+  "defaultMode": "window",
+  "documentRoot": "/resources/",
+  "url": "/index.html",
+  "enableServer": false,
+  "nativeAllowList": [
+    "os.*",
+    "filesystem.*",
+    "events.*",
+    "computer.*",
+    "clipboard.*",
+    "tray.*",
+    "window.*",
+    "notification.*"
+  ],
+  "globalVariables": {},
+  "modes": {
+    "window": {
+      "title": "Poelili",
+      "width": 1100,
+      "height": 720,
+      "resizable": true,
+      "fullScreen": false,
+      "minWidth": 960,
+      "minHeight": 600,
+      "maximize": false,
+      "exitProcessOnClose": true,
+      "icon": "/resources/assets/icon.png"
+    }
+  },
+  "cli": {
+    "binaryName": "Poelili",
+    "binaryVersion": "nightly"
+  }
+}

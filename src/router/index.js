@@ -1,36 +1,33 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Proxy from '../views/Proxy.vue'
-import Main from '../views/Main.vue'
-import PoeSession from '../views/PoeSession.vue'
-import checkValue from '../views/checkValue.vue'
-import CaiMoGu from '../views/CaiMoGu.vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
   {
     path: '/Proxy',
     name: 'Proxy',
-    component: Proxy
+    component: () => import('../views/Proxy.vue')
   },{
     path: '/Main',
     name: 'Main',
-    component: Main
+    component: () => import('../views/Main.vue')
   },{
     path: '/PoeSession',
     name: 'PoeSession',
-    component: PoeSession
+    component: () => import('../views/PoeSession.vue')
   },{
     path: '/checkValue',
     name: 'checkValue',
-    component: checkValue
+    component: () => import('../views/checkValue.vue')
   },{
     path: '/CaiMoGu',
     name: 'CaiMoGu',
-    component: CaiMoGu
-  }
+    component: () => import('../views/CaiMoGu.vue')
+  },
+  { path: '/', redirect: '/Main' },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: { render: () => null } }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 

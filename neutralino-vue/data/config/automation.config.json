@@ -1,0 +1,6 @@
+{
+  "imgOpsPath": "./bin/ImgOps.exe",
+  "httpCliPath": "./bin/HttpCli.exe",
+  "updaterPath": "./bin/Updater.exe",
+  "defaultThreshold": 0.85
+}

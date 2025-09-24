@@ -1,0 +1,25 @@
+{
+  "name": "poelili-neutralino",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Poelili Neutralino.js + Vue3 客户端（外部 .NET 图色/HTTP/更新器）",
+  "scripts": {
+    "dev": "neu run -- --window",
+    "build:ui": "cd app && vite build && cd .. && node scripts/copy-build.js",
+    "build": "npm run build:ui && neu build --release",
+    "start": "neu run"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vue": "^3.4.0",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.7",
+    "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "sql.js": "^1.11.0",
+    "zod": "^3.23.0"
+  }
+}

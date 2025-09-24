@@ -1,0 +1,7 @@
+{
+  "language": "zh-CN",
+  "logLevel": "info",
+  "updateChannel": "stable",
+  "dataDir": "./data",
+  "feedUrl": "https://example.com/poelili/latest.json"
+}
